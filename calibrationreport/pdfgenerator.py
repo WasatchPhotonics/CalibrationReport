@@ -9,7 +9,7 @@ from reportlab.platypus import Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
-from calibrationreport.views import EmptyReport
+from calibrationreport.models import EmptyReport
 
 class PDFGenerator(object):
     """ Generate a wasatch photoncis themed calibration report by

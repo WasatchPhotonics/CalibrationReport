@@ -101,6 +101,12 @@ class TestCalibrationReportViews(unittest.TestCase):
         from calibrationreport.views import CalibrationReportViews
 
         serial = "CRTEST123" # slug-friendly serial
+        pdf_directory = "database/%s" % serial
+        try:
+            shutil.rmtree(pdf_directory)
+        except OSError, e:
+            log.exception(e)
+
 
         image0_store = MockStorage("image0_placeholder.jpg")
         image1_store = MockStorage("image1_placeholder.jpg")
