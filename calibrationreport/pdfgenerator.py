@@ -3,6 +3,7 @@ photonics specific calibration reports.
 """
 
 import time
+import logging
         
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
@@ -14,6 +15,8 @@ from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 
 from calibrationreport.models import EmptyReport
+
+log = logging.getLogger(__name__)
 
 class WasatchSinglePage(object):
     """ Generate a wasatch photoncis themed calibration report by
@@ -28,12 +31,10 @@ class WasatchSinglePage(object):
         self.doc = SimpleDocTemplate(filename, pagesize=letter,
                                      rightMargin=72, leftMargin=72,
                                      topMargin=72, bottomMargin=18)
+
         story = []
-        
- 
         self.add_header(story, report)
         self.add_images(story, report)
-
         self.doc.build(story)
 
     def add_images(self, story, report):
@@ -54,7 +55,9 @@ class WasatchSinglePage(object):
         data=[[left_img, right_img]]
         
         edge_color = colors.black
-        table = Table(data, colWidths=200, rowHeights=200)
+        edge_color = colors.white
+        #table = Table(data, colWidths=200, rowHeights=200)
+        table = Table(data)
         table.setStyle(TableStyle([
                                 ('INNERGRID', (0,0), (-1,-1), 0.25, edge_color),
                                 ('BOX', (0,0), (-1,-1), 0.25, edge_color),
@@ -62,6 +65,7 @@ class WasatchSinglePage(object):
                                 ]))
         
         story.append(table)
+
     def add_header(self, story, report):
         """ Insert the logo and top level text into the reportlab pdf
         story.
