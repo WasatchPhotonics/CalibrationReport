@@ -13,14 +13,6 @@ from slugify import slugify
 
 from wand.image import Image
 
-        
-from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.platypus import Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-
 log = logging.getLogger(__name__)
 
         

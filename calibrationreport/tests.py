@@ -37,6 +37,40 @@ class MockStorage(object):
         log.info("file: %s", self.filename)
         self.file = file(self.filename)
 
+class TestPDFGenerator(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_all_options_unrequired(self):
+        # when creating a pdf generator object, the files is written to
+        # disk
+        filename = "default.pdf"
+        if os.path.exists(filename):
+            os.remove(filename) 
+
+        self.assertFalse(os.path.exists(filename)) 
+
+        from calibrationreport.pdfgenerator import PDFGenerator
+        pdf = PDFGenerator()
+
+        self.assertTrue(os.path.exists(filename)) 
+
+    def test_filename_specified(self):
+        filename = "pdf_check.pdf"
+        if os.path.exists(filename):
+            os.remove(filename) 
+
+        self.assertFalse(os.path.exists(filename)) 
+
+        from calibrationreport.pdfgenerator import PDFGenerator
+        pdf = PDFGenerator(filename=filename)
+
+        self.assertTrue(os.path.exists(filename)) 
+        
+
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
