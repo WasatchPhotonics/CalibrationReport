@@ -1,4 +1,4 @@
-""" pdfgenerator - classes for using reportlab to generate wasatch
+""" WasatchSinglePage - classes for using reportlab to generate wasatch
 photonics specific calibration reports.
 """
         
@@ -11,12 +11,11 @@ from reportlab.lib.units import inch
 
 from calibrationreport.models import EmptyReport
 
-class PDFGenerator(object):
+class WasatchSinglePage(object):
     """ Generate a wasatch photoncis themed calibration report by
     default. All parameters are optional.
     """
-    def __init__(self, filename="default.pdf", report=None,
-                 header_image="WP_logo.png"):
+    def __init__(self, filename="default.pdf", report=None):
 
         # Populate the report object with defaults if not specified
         if report is None:

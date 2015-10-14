@@ -7,7 +7,7 @@ spectrometers.
 Getting Started
 ---------------
 
-- cd <directory containing this file>
+- cd _directory containing this file_
 
 - $VENV/bin/python setup.py develop
 

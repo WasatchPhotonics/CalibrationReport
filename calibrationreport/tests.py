@@ -47,29 +47,60 @@ class TestPDFGenerator(unittest.TestCase):
     def test_all_options_unrequired(self):
         # when creating a pdf generator object, the files is written to
         # disk
+        from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "default.pdf"
-        if os.path.exists(filename):
-            os.remove(filename) 
+        self.touch_then_erase(filename)
+        pdf = WasatchSinglePage()
+        self.exists_and_file_range(filename)
 
-        self.assertFalse(os.path.exists(filename)) 
-
-        from calibrationreport.pdfgenerator import PDFGenerator
-        pdf = PDFGenerator()
-
+    def exists_and_file_range(self, filename, base=1720, deviation=50):
+        """ Helper function to assert that a file exists, and it's size
+        is within the expected range. PDF's generated within seconds of
+        each other with identical settings have different sizes with
+        reportlab.
+        """
         self.assertTrue(os.path.exists(filename)) 
 
-    def test_filename_specified(self):
+        file_size = os.path.getsize(filename)
+        max_size = base + deviation
+        min_size = base - deviation
+        self.assertLess(file_size, max_size)
+        self.assertGreater(file_size, min_size)
+
+    def test_filename_and_report_object_specified(self):
+        from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "pdf_check.pdf"
+        self.touch_then_erase(filename)
+        pdf = WasatchSinglePage(filename=filename)
+        self.assertTrue(os.path.exists(filename)) 
+
+    def touch_then_erase(self, filename):
+        """ Helper function to erase a file if it exists. Touches the
+        file first so coverage is always 100%
+        """
+        # http://stackoverflow.com/questions/12654772/\
+        # create-empty-file-using-python
+        open(filename, 'a').close()
         if os.path.exists(filename):
             os.remove(filename) 
-
         self.assertFalse(os.path.exists(filename)) 
 
-        from calibrationreport.pdfgenerator import PDFGenerator
-        pdf = PDFGenerator(filename=filename)
+       
+    def test_imagery_specified(self):
+        from calibrationreport.pdfgenerator import WasatchSinglePage 
+        filename = "with_images_check.pdf"
+        self.touch_then_erase(filename)
+        img0 = "database/placeholders/image0_placeholder.jpg",
+        img1 = "database/placeholders/image0_placeholder.jpg",
+        from calibrationreport.models import EmptyReport
+        report = EmptyReport()
+        pdf = WasatchSinglePage(filename=filename, report=report)
 
         self.assertTrue(os.path.exists(filename)) 
+
         
+
+ 
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):

@@ -13,7 +13,7 @@ from slugify import slugify
 
 from wand.image import Image
 
-from calibrationreport.pdfgenerator import PDFGenerator
+from calibrationreport.pdfgenerator import WasatchSinglePage
 from calibrationreport.models import EmptyReport
 
 log = logging.getLogger(__name__)
@@ -55,7 +55,7 @@ class CalibrationReportViews:
 
         filename = "database/%s/report.pdf" % report.serial
                  
-        pdf = PDFGenerator(filename)
+        pdf = WasatchSinglePage(filename)
 
     def populate_report(self):
         """ Using the post fields, make the report object match the
