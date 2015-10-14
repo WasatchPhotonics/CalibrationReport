@@ -1,3 +1,5 @@
+""" unit and functional tests for the calibrationreport application
+"""
 import os
 import sys
 import shutil
@@ -23,8 +25,11 @@ def register_routes(config):
     """ match the configuration in __init__ (a pyramid tutorials
     convention), to allow the unit tests to use the routes.
     """
-    config.add_route("top_thumbnail", "top_thumbnail/{serial}")
-    config.add_route("mosaic_thumbnail", "mosaic_thumbnail/{serial}")
+    config.add_route("view_pdf", "view_pdf/{serial}")
+    # why doon't you need to register routes?
+
+
+    #
 
 
 class MockStorage(object):
@@ -107,17 +112,33 @@ class TestPDFGenerator(unittest.TestCase):
         pdf = WasatchSinglePage(filename=filename, report=report)
         self.exists_and_file_range(filename=filename, base=208000)
 
-        
-
- 
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
-        register_routes(self.config)
+        #register_routes(self.config)
 
     def tearDown(self):
         testing.tearDown()
+
+    def test_view_pdf(self):
+        # manually copy a pdf placeholder into a known location, verify
+        # the view can send it back
+        known_pdf = "database/placeholders/known_view.pdf"
+        serial = "vt0001" # slug-friendly
+        dest_dir = "database/%s" % serial
+        self.clean_directory(dest_dir)
+        os.makedirs(dest_dir)
+        shutil.copy(known_pdf, "%s/report.pdf" % dest_dir)
+
+        from calibrationreport.views import CalibrationReportViews
+        request = testing.DummyRequest()
+        request.matchdict["serial"] = serial
+        inst = CalibrationReportViews(request)
+        result = inst.view_pdf()
+        
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.content_length, 208628)
 
     def test_home_empty_view_not_submitted(self):
         # Make sure serial number and all other fields are pre-populated
@@ -137,13 +158,12 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.image1, 
             "database/placeholders/image1_placeholder.jpg")
 
-    def force_create_then_delete(self, dir_name):
+    def clean_directory(self, dir_name):
         """ Helper function to ensure that the working directory is
-        created then immediately deleted. This is for travis 100%
-        coverage.
+        deleted and then recreated.
         """
-        os.makedirs(dir_name)
-        shutil.rmtree(dir_name)
+        if os.path.exists(dir_name):
+            shutil.rmtree(dir_name)
         
     def test_home_view_submitted(self):
         # Populate a POST entry, verify the returned fields are
@@ -153,7 +173,7 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         image0_store = MockStorage("image0_placeholder.jpg")
         image1_store = MockStorage("image1_placeholder.jpg")
-        new_dict = {"form.submitted":"True", "serial":"CRTEST1234",
+        new_dict = {"form.submitted":"True", "serial":"crtest1234",
                     "coeff_0":"100", "coeff_1":"101", "coeff_2":"102",
                     "coeff_3":"103", 
                     "image0_file_content":image0_store,
@@ -179,11 +199,13 @@ class TestCalibrationReportViews(unittest.TestCase):
         from calibrationreport.views import CalibrationReportViews
 
         # Delete the test file if it exists
-        serial = "CRTEST456" # slug-friendly serial
+        serial = "crtest456" # slug-friendly serial
         pdf_directory = "database/%s" % serial
-        self.force_create_then_delete(pdf_directory)
+        self.clean_directory(pdf_directory)
 
-        # Generate a post request
+        # Generate a post request. These mock data storage filenames
+        # happen to be the same as what the pdf generator will use if
+        # not specified
         image0_store = MockStorage("image0_placeholder.jpg")
         image1_store = MockStorage("image1_placeholder.jpg")
         new_dict = {"form.submitted":"True", "serial":serial,
@@ -239,5 +261,37 @@ class FunctionalTests(unittest.TestCase):
         # django-filefield-and-invalid-forms/
         self.assertTrue("image0_placeholder.jpg" in res.body)
         self.assertTrue("image1_placeholder.jpg" in res.body)
-        
+
+    def test_submit_and_follow_pdf_link(self):
+        res = self.testapp.get("/")
+        self.assertEqual(res.status_code, 200)
+        #log.info("Body: %s", res.body)
+        form = res.forms["cal_form"]
+        form["serial"] = "ft789"
+        form["coeff_0"] = "200.9892*e-07"
+        form["coeff_1"] = "201.9892*e-07"
+        form["coeff_2"] = "202.9892*e-07"
+        form["coeff_3"] = "203.9892*e-07"
+
+        image0_file = "database/placeholders/image0_defined.jpg"
+        image1_file = "database/placeholders/image1_defined.jpg"
+        form["image0_file_content"] = Upload(image0_file) 
+        form["image1_file_content"] = Upload(image1_file) 
+
+        submit_res = form.submit("form.submitted")
+
+        # Get the new form, make sure the fields are populated as
+        # expected
+        new_form = submit_res.forms["cal_form"]
+        self.assertEqual(new_form["serial"].value, "ft789")
+        self.assertEqual(new_form["coeff_0"].value, "200.9892*e-07")
+        self.assertEqual(new_form["coeff_1"].value, "201.9892*e-07")
+        self.assertEqual(new_form["coeff_2"].value, "202.9892*e-07")
+        self.assertEqual(new_form["coeff_3"].value, "203.9892*e-07")
+        self.assertTrue("image0_defined.jpg" in submit_res.body)
+        self.assertTrue("image1_defined.jpg" in submit_res.body)
+
+        # Click pdf link, follow it and make sure it is the right size
+        click_res = submit_res.click(linkid="pdf_link") 
+        self.assertEqual(click_res.content_length, 208628)
 

@@ -77,6 +77,9 @@ value="${fields.image1}" />
   </div>
 </form>
 <br>
+<br>
+<a id="pdf_link" href="/view_pdf/${fields.serial}">view pdf</a>
+<br>
             </div>
           </div>
         </div>
