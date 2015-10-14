@@ -56,8 +56,20 @@ Photonics spectrometer calibration reports.</p>
     <BR>
     <BR>
     Image zero: <input id="image0_file_content"
-name="image0_file_contentfile_content" type="file"
-value="${fields.image0}" />    
+name="image0_file_content" type="file"
+value="${fields.image0}"/>    
+    <BR>
+    Image0 File: ${fields.image0}
+    <BR>
+    <BR>
+
+    Image one: <input id="image1_file_content"
+name="image1_file_content" type="file"
+value="${fields.image1}" />    
+    <BR>
+    Image1 File: ${fields.image1}
+    <BR>
+    <BR>
   </div>
                   
   <div class="form-group">
