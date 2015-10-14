@@ -188,10 +188,13 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.coeff_1, new_dict["coeff_1"])
         self.assertEqual(result.coeff_2, new_dict["coeff_2"])
         self.assertEqual(result.coeff_3, new_dict["coeff_3"])
+
+        # When submitting an entry, expect the new hardcoded filename
+        # for the uploaded imagery
         self.assertEqual(result.image0,
-                         new_dict["image0_file_content"].filename)
+                         "database/crtest1234/image0.png")
         self.assertEqual(result.image1,
-                         new_dict["image1_file_content"].filename)
+                         "database/crtest1234/image1.png")
        
     def test_home_view_submitted_generates_pdf(self):
         # submit the post entry, verify that the pdf file is generated
@@ -273,10 +276,17 @@ class FunctionalTests(unittest.TestCase):
         form["coeff_2"] = "202.9892*e-07"
         form["coeff_3"] = "203.9892*e-07"
 
+        # Submitting via an actual browser strips the directory
+        # prefixes. Copy the files to temporary locations to exactly
+        # mimic this
         image0_file = "database/placeholders/image0_defined.jpg"
         image1_file = "database/placeholders/image1_defined.jpg"
-        form["image0_file_content"] = Upload(image0_file) 
-        form["image1_file_content"] = Upload(image1_file) 
+        shutil.copy(image0_file, "localimg0.jpg")
+        shutil.copy(image1_file, "localimg1.jpg")
+
+        form["image0_file_content"] = Upload("localimg0.jpg")
+        form["image1_file_content"] = Upload("localimg1.jpg")
+
 
         submit_res = form.submit("form.submitted")
 
@@ -288,8 +298,12 @@ class FunctionalTests(unittest.TestCase):
         self.assertEqual(new_form["coeff_1"].value, "201.9892*e-07")
         self.assertEqual(new_form["coeff_2"].value, "202.9892*e-07")
         self.assertEqual(new_form["coeff_3"].value, "203.9892*e-07")
-        self.assertTrue("image0_defined.jpg" in submit_res.body)
-        self.assertTrue("image1_defined.jpg" in submit_res.body)
+
+        # The files are uploaded and hardcoded to filename: image0 and
+        # image1.png regardless of their format. Expect this hardcoded
+        # filename returned
+        self.assertTrue("database/ft789/image0.png" in submit_res.body)
+        self.assertTrue("database/ft789/image1.png" in submit_res.body)
 
         # Click pdf link, follow it and make sure it is the right size
         click_res = submit_res.click(linkid="pdf_link") 
@@ -298,3 +312,6 @@ class FunctionalTests(unittest.TestCase):
         self.assertGreater(click_res.content_length, 208628-500)
         self.assertLess(click_res.content_length, 208628+500)
 
+        # Cleanup the temp files - after the request has completed!
+        os.remove("localimg0.jpg")
+        os.remove("localimg1.jpg")

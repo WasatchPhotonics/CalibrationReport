@@ -69,11 +69,11 @@ class CalibrationReportViews:
 
         img0_content = self.request.POST["image0_file_content"]
         self.write_file(report.serial, "image0.png", img0_content.file)
-        report.image0 = img0_content.filename
+        report.image0 = "database/%s/image0.png" % report.serial
 
         img1_content = self.request.POST["image1_file_content"]
         self.write_file(report.serial, "image1.png", img1_content.file)
-        report.image1 = img1_content.filename
+        report.image1 = "database/%s/image1.png" % report.serial
 
         return report
 

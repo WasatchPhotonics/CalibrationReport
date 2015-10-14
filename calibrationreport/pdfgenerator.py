@@ -87,11 +87,13 @@ class WasatchSinglePage(object):
        
         image0_filename = report.image0
         image1_filename = report.image1
-    
+   
+        log.info("PDFGen load: %s", image0_filename) 
         left_img = Image(image0_filename)
         left_img.drawHeight = 2*inch
         left_img.drawWidth = 2*inch
     
+        log.info("PDFGen load: %s", image1_filename) 
         right_img = Image(image1_filename)
         right_img.drawHeight = 2*inch
         right_img.drawWidth = 2*inch
