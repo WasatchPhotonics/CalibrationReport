@@ -6,5 +6,5 @@ install:
   - pip install coveralls
   - "python setup.py develop"
 # command to run tests
-script: nosetests --cover-erase --with-coverage 
+script: nosetests --cover-erase --with-coverage --cover-package=calibrationreport
 after_success: coveralls
