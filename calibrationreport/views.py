@@ -44,7 +44,8 @@ class CalibrationReportViews:
 
     def populate_report(self):
         """ Using the post fields, make the report object match the
-        supplied user configuration.
+        supplied user configuration. If uploading of files is succesful,
+        assign the temporary filenames to the report object.
         """
         report = EmptyReport()
         report.serial = self.request.POST["serial"]
