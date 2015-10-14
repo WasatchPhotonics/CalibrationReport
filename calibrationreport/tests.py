@@ -87,16 +87,20 @@ class TestPDFGenerator(unittest.TestCase):
 
        
     def test_imagery_specified(self):
+        from calibrationreport.models import EmptyReport
         from calibrationreport.pdfgenerator import WasatchSinglePage 
+
         filename = "with_images_check.pdf"
         self.touch_then_erase(filename)
-        img0 = "database/placeholders/image0_placeholder.jpg",
-        img1 = "database/placeholders/image0_placeholder.jpg",
-        from calibrationreport.models import EmptyReport
-        report = EmptyReport()
-        pdf = WasatchSinglePage(filename=filename, report=report)
 
-        self.assertTrue(os.path.exists(filename)) 
+        img0 = "database/placeholders/image0_defined.jpg"
+        img1 = "database/placeholders/image1_defined.jpg"
+
+        report = EmptyReport()
+        report.image0 = img0
+        report.image1 = img1
+        pdf = WasatchSinglePage(filename=filename, report=report)
+        self.exists_and_file_range(filename=filename, base=208000)
 
         
 

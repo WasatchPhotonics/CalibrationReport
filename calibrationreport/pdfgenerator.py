@@ -80,6 +80,7 @@ class WasatchSinglePage(object):
                      % report.coeff_3
         story.append(Paragraph(coeff_text, styles["Normal"]))
         story.append(Spacer(1, 14))
+
     def add_images(self, story, report):
         """ Load the images as defined by the report filename side by
         side directly under the calibration header information.
