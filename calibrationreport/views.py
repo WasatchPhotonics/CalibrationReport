@@ -35,27 +35,12 @@ class CalibrationReportViews:
         if "form.submitted" in self.request.params:
             report = self.populate_report()
 
-        self.write_report(report)
 
         pdf_link = "%s/report.pdf" % report.serial
         links = {"pdf_link":pdf_link}
 
         return dict(fields=report, links=links)
 
-    def write_report(self, report):
-        """ Populate a pdf document and write to disk base on the fields
-        in the report object.
-        """
-
-        report_path = "database/%s" % report.serial
-        if not os.path.exists(report_path):
-            os.makedirs(report_path)
-        else:
-            log.warn("Ovewriting path info %s", report_path)
-
-        filename = "database/%s/report.pdf" % report.serial
-                 
-        pdf = WasatchSinglePage(filename)
 
     def populate_report(self):
         """ Using the post fields, make the report object match the

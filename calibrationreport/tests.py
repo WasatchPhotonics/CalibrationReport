@@ -86,7 +86,7 @@ class TestPDFGenerator(unittest.TestCase):
         self.assertFalse(os.path.exists(filename)) 
 
        
-    def test_imagery_specified(self):
+    def test_fully_valid_report(self):
         from calibrationreport.models import EmptyReport
         from calibrationreport.pdfgenerator import WasatchSinglePage 
 
@@ -97,8 +97,13 @@ class TestPDFGenerator(unittest.TestCase):
         img1 = "database/placeholders/image1_defined.jpg"
 
         report = EmptyReport()
+        report.serial = "DEFINEDSERIAL01234"
         report.image0 = img0
         report.image1 = img1
+        report.coeff_0 = "1000.1213123*e-06"
+        report.coeff_1 = "1001.1213123*e-06"
+        report.coeff_2 = "1002.1213123*e-06"
+        report.coeff_3 = "1003.1213123*e-06"
         pdf = WasatchSinglePage(filename=filename, report=report)
         self.exists_and_file_range(filename=filename, base=208000)
 

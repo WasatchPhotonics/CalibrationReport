@@ -60,23 +60,22 @@ class WasatchSinglePage(object):
         story.append(Paragraph(pix_text, styles["Normal"]))
         story.append(Spacer(1, 14))
 
-        coeff_text = "<font size=14><b>C0:</b> %s</font>" \
+        coeff_text = "<font size=14><b>C0=</b> %s</font>" \
                      % report.coeff_0
         story.append(Paragraph(coeff_text, styles["Normal"]))
         story.append(Spacer(1, 14))
 
-        coeff_text = "<font size=14><b>C1:</b> %s</font>" \
+        coeff_text = "<font size=14><b>C1=</b> %s</font>" \
                      % report.coeff_1
         story.append(Paragraph(coeff_text, styles["Normal"]))
         story.append(Spacer(1, 14))
 
-        coeff_text = "<font size=14><b>C2:</b> %s</font>" \
+        coeff_text = "<font size=14><b>C2=</b> %s</font>" \
                      % report.coeff_2
         story.append(Paragraph(coeff_text, styles["Normal"]))
         story.append(Spacer(1, 14))
 
-
-        coeff_text = "<font size=14><b>C3:</b> %s</font>" \
+        coeff_text = "<font size=14><b>C3=</b> %s</font>" \
                      % report.coeff_3
         story.append(Paragraph(coeff_text, styles["Normal"]))
         story.append(Spacer(1, 14))
