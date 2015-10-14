@@ -297,6 +297,10 @@ class FunctionalTests(unittest.TestCase):
         form = res.forms["cal_form"]
         self.assertEqual(form["serial"].value, "unspecified")
         self.assertEqual(form["coeff_0"].value, "0")
+        self.assertEqual(form["coeff_1"].value, "0")
+        self.assertEqual(form["coeff_2"].value, "0")
+        self.assertEqual(form["coeff_3"].value, "0")
+        self.assertEqual(form["image0"].value, "0")
         
 
     def test_root(self):

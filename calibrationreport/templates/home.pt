@@ -45,6 +45,19 @@ Photonics spectrometer calibration reports.</p>
     Calibration Coefficient 0: <textarea class="form-control" name="coeff_0" 
        rows="1" cols="30">${fields.coeff_0}</textarea>
     <BR>
+    Calibration Coefficient 1: <textarea class="form-control" name="coeff_1" 
+       rows="1" cols="30">${fields.coeff_1}</textarea>
+    <BR>
+    Calibration Coefficient 2: <textarea class="form-control" name="coeff_2" 
+       rows="1" cols="30">${fields.coeff_2}</textarea>
+    <BR>
+    Calibration Coefficient 3: <textarea class="form-control" name="coeff_3" 
+       rows="1" cols="30">${fields.coeff_3}</textarea>
+    <BR>
+    <BR>
+    Image zero: <input id="image0_file_content"
+name="image0_file_contentfile_content" type="file"
+value="${fields.image0}" />    
   </div>
                   
   <div class="form-group">
