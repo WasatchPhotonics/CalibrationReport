@@ -27,6 +27,25 @@ def register_routes(config):
     config.add_route("top_thumbnail", "top_thumbnail/{serial}")
     config.add_route("mosaic_thumbnail", "mosaic_thumbnail/{serial}")
 
+class TestCalibrationReportViews(unittest.TestCase):
+    def setUp(self):
+        self.config = testing.setUp()
+        register_routes(self.config)
+
+    def tearDown(self):
+        testing.tearDown()
+
+    def test_home_empty_view_not_submitted(self):
+        # Make sure serial number and all other fields are pre-populated
+        # with defaults
+        from calibrationreport.views import CalibrationReportViews
+        request = testing.DummyRequest()
+        inst = CalibrationReportViews(request)
+        result = inst.cal_report()["fields"]
+
+        self.assertEqual(result.serial, "unspecified")
+        self.assertEqual(result.coeff_0, "unspecified")
+        
 
 class TestThumbnailViews(unittest.TestCase):
     def setUp(self):

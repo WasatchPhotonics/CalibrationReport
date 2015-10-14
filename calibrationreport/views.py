@@ -19,6 +19,28 @@ log = logging.getLogger(__name__)
 def my_view(request):
     return dict()
 
+class CalibrationReportViews:
+    """ Generate pdf and png content of calibration reports based on
+    fields supplied by the user.
+    """
+    def __init__(self, request):
+        self.request = request
+    
+    @view_config(route="cal_report")
+    def cal_report(self):
+        fields = self.generate_empty_cal_report()
+        return dict(fields=fields)
+
+    def generate_empty_cal_report(self):
+        """ placeholder object returned for use as the empty calibration
+        report fields.
+        """
+        class EmptyReport(object):
+            serial = "unspecified"
+            coeff_0 = "unspecified"
+
+        empty = EmptyReport()
+        return empty
 
 class ThumbnailViews:
     """ Return png objects from disk where the serial number is found,

@@ -3,9 +3,6 @@
 Web service to create calibration reports for wasatch photonics
 spectrometers.
 
-CalibrationRerport README
-==================
-
 Getting Started
 ---------------
 
