@@ -15,6 +15,18 @@ from wand.image import Image
 
 log = logging.getLogger(__name__)
 
+        
+class EmptyReport(object):
+    """ Helper class for empty calibration report population.
+    """
+    serial = "unspecified"
+    coeff_0 = "0"
+    coeff_1 = "0"
+    coeff_2 = "0"
+    coeff_3 = "0"
+    image0 = "placeholder"
+    image1 = "placeholder"
+
 class CalibrationReportViews:
     """ Generate pdf and png content of calibration reports based on
     fields supplied by the user.
@@ -24,19 +36,22 @@ class CalibrationReportViews:
     
     @view_config(route_name="cal_report", renderer="templates/home.pt")
     def cal_report(self):
-        fields = self.generate_empty_cal_report()
-        return dict(fields=fields)
-
-    def generate_empty_cal_report(self):
-        """ placeholder object returned for use as the empty calibration
-        report fields.
+        """ Update the currently displayed calibration report with the
+        fields submitted from post.
         """
-        class EmptyReport(object):
-            serial = "unspecified"
-            coeff_0 = "unspecified"
+        if "form.submitted" not in self.request.params:
+            return dict(fields=EmptyReport())
 
-        empty = EmptyReport()
-        return empty
+        report = EmptyReport()
+        report.serial = self.request.POST["serial"]
+        report.coeff_0 = self.request.POST["coeff_0"]
+        report.coeff_1 = self.request.POST["coeff_1"]
+        report.coeff_2 = self.request.POST["coeff_2"]
+        report.coeff_3 = self.request.POST["coeff_3"]
+        report.image0 = self.request.POST["image0"]
+        report.image1 = self.request.POST["image1"]
+
+        return dict(fields=report)
 
 class ThumbnailViews:
     """ Return png objects from disk where the serial number is found,

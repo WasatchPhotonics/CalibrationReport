@@ -43,7 +43,36 @@ class TestCalibrationReportViews(unittest.TestCase):
         result = inst.cal_report()["fields"]
 
         self.assertEqual(result.serial, "unspecified")
-        self.assertEqual(result.coeff_0, "unspecified")
+        self.assertEqual(result.coeff_0, "0")
+        self.assertEqual(result.coeff_1, "0")
+        self.assertEqual(result.coeff_2, "0")
+        self.assertEqual(result.coeff_3, "0")
+        self.assertEqual(result.image0, "placeholder")
+        self.assertEqual(result.image1, "placeholder")
+
+    def test_home_view_submitted(self):
+        # Populate a POST entry, verify the returned fields are
+        # populated with the submitted entries
+        from calibrationreport.views import CalibrationReportViews
+
+        serial = "CRTEST123" # slug-friendly serial
+
+        new_dict = {"form.submitted":"True", "serial":serial,
+                    "coeff_0":"100", "coeff_1":"101", "coeff_2":"102",
+                    "coeff_3":"103", "image0":"img0_filename",
+                    "image1":"image1_filename"}
+    
+        request = testing.DummyRequest(new_dict)
+        inst = CalibrationReportViews(request)
+        result = inst.cal_report()["fields"]
+
+        self.assertEqual(result.serial, new_dict["serial"])
+        self.assertEqual(result.coeff_0, new_dict["coeff_0"])
+        self.assertEqual(result.coeff_1, new_dict["coeff_1"])
+        self.assertEqual(result.coeff_2, new_dict["coeff_2"])
+        self.assertEqual(result.coeff_3, new_dict["coeff_3"])
+        self.assertEqual(result.image0, new_dict["image0"])
+        self.assertEqual(result.image1, new_dict["image1"])
         
 
 class TestThumbnailViews(unittest.TestCase):
@@ -262,12 +291,12 @@ class FunctionalTests(unittest.TestCase):
     def tearDown(self):
         del self.testapp
 
-    def test_home_form_blank(self):
+    def test_home_form_starts_prepopulated(self):
         res = self.testapp.get("/")
         self.assertEqual(res.status_code, 200)
         form = res.forms["cal_form"]
-        self.assertEqual(form["serial"].value, "")
-        self.assertEqual(form["coeff_0"].value, "")
+        self.assertEqual(form["serial"].value, "unspecified")
+        self.assertEqual(form["coeff_0"].value, "0")
         
 
     def test_root(self):
