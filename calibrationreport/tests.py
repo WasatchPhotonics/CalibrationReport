@@ -103,8 +103,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         except OSError, e:
             log.exception(e)
 
-            
-
+        # Generate a post request
         image0_store = MockStorage("image0_placeholder.jpg")
         image1_store = MockStorage("image1_placeholder.jpg")
         new_dict = {"form.submitted":"True", "serial":serial,
@@ -118,8 +117,20 @@ class TestCalibrationReportViews(unittest.TestCase):
         result = inst.cal_report()
         links = result["links"]
 
-        file_size = os.path.getsize("%s/report.pdf" % pdf_directory)
-        self.assertEqual(file_size, 20000)
+        # Verify the file described in the links dict exists
+        linked_file = "database/%s" % links["pdf_link"]
+        self.assertTrue(os.path.exists(linked_file))
+
+        # PDF generation is indeterminate file size, apparently because
+        # of timestamps in the file. Set a range of +- N bytes to try
+        # and compensate
+        file_size = os.path.getsize(linked_file)
+        base_size = 1720
+        deviation = 50
+        max_size = base_size + deviation
+        min_size = base_size - deviation
+        self.assertLess(file_size, max_size)
+        self.assertGreater(file_size, min_size)
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):

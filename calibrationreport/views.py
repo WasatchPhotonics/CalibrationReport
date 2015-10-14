@@ -45,13 +45,46 @@ class CalibrationReportViews:
 
         self.write_report(report)
 
-        links = {}
+        pdf_link = "%s/report.pdf" % report.serial
+        links = {"pdf_link":pdf_link}
+
         return dict(fields=report, links=links)
 
     def write_report(self, report):
         """ Populate a pdf document and write to disk base on the fields
         in the report object.
         """
+
+        os.makedirs("database/%s" % report.serial)
+
+        filename = "database/%s/report.pdf" % report.serial
+        import time
+        from reportlab.lib.enums import TA_JUSTIFY
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, \
+                Image, PageBreak
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+         
+        doc = SimpleDocTemplate(filename, pagesize=letter,
+                                rightMargin=72,leftMargin=72,
+                                topMargin=72,bottomMargin=18)
+        Story=[]
+        formatted_time = time.ctime()
+         
+        styles=getSampleStyleSheet()
+        styles.add(ParagraphStyle(name='Justify', alignment=TA_JUSTIFY))
+
+        ser_text = '<font size=14><b>' + str(report.serial) + \
+                    '</b></font>'
+
+        Story.append(Spacer(1, 12))
+        ptext = '<font size=14>Calibration Report: </font>' + ser_text
+        Story.append(Paragraph(ptext, styles["Normal"]))
+        Story.append(Spacer(1, 12))
+
+        doc.build(Story)
+         
         return
 
     def populate_report(self):
