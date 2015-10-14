@@ -51,9 +51,9 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage()
-        self.exists_and_file_range(filename)
+        self.exists_and_file_range(filename, base=649000)
 
-    def exists_and_file_range(self, filename, base=1720, deviation=500):
+    def exists_and_file_range(self, filename, base=1720, deviation=5000):
         """ Helper function to assert that a file exists, and it's size
         is within the expected range. PDF's generated within seconds of
         each other with identical settings have different sizes with
@@ -72,7 +72,7 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "pdf_check.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage(filename=filename)
-        #self.exists_and_file_range(filename=filename, base=82000)
+        self.exists_and_file_range(filename=filename, base=649000)
 
     def touch_then_erase(self, filename):
         """ Helper function to erase a file if it exists. Touches the
@@ -123,8 +123,10 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.coeff_1, "0")
         self.assertEqual(result.coeff_2, "0")
         self.assertEqual(result.coeff_3, "0")
-        self.assertEqual(result.image0, "placeholder")
-        self.assertEqual(result.image1, "placeholder")
+        self.assertEqual(result.image0, 
+            "database/placeholders/image0_placeholder.jpg")
+        self.assertEqual(result.image1, 
+            "database/placeholders/image1_placeholder.jpg")
 
     def test_home_view_submitted(self):
         # Populate a POST entry, verify the returned fields are
@@ -196,8 +198,8 @@ class TestCalibrationReportViews(unittest.TestCase):
         # of timestamps in the file. Set a range of +- N bytes to try
         # and compensate
         file_size = os.path.getsize(linked_file)
-        base_size = 1720
-        deviation = 50
+        base_size = 649000
+        deviation = 5000
         max_size = base_size + deviation
         min_size = base_size - deviation
         self.assertLess(file_size, max_size)
@@ -228,7 +230,7 @@ class FunctionalTests(unittest.TestCase):
         # a separate field to mimic the last file uploaded. 
         # https://snakeycode.wordpress.com/2015/05/05/\
         # django-filefield-and-invalid-forms/
-        self.assertTrue("Image0 File: placeholder" in res.body)
-        self.assertTrue("Image1 File: placeholder" in res.body)
+        self.assertTrue("image0_placeholder.jpg" in res.body)
+        self.assertTrue("image1_placeholder.jpg" in res.body)
         
 
