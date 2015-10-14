@@ -15,10 +15,6 @@ from wand.image import Image
 
 log = logging.getLogger(__name__)
 
-@view_config(route_name="home", renderer="templates/home.pt")
-def my_view(request):
-    return dict()
-
 class CalibrationReportViews:
     """ Generate pdf and png content of calibration reports based on
     fields supplied by the user.
@@ -26,7 +22,7 @@ class CalibrationReportViews:
     def __init__(self, request):
         self.request = request
     
-    @view_config(route="cal_report")
+    @view_config(route_name="cal_report", renderer="templates/home.pt")
     def cal_report(self):
         fields = self.generate_empty_cal_report()
         return dict(fields=fields)

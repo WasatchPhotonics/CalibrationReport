@@ -23,7 +23,6 @@ def register_routes(config):
     """ match the configuration in __init__ (a pyramid tutorials
     convention), to allow the unit tests to use the routes.
     """
-    config.add_route("home_view", "/")
     config.add_route("top_thumbnail", "top_thumbnail/{serial}")
     config.add_route("mosaic_thumbnail", "mosaic_thumbnail/{serial}")
 
@@ -262,6 +261,14 @@ class FunctionalTests(unittest.TestCase):
 
     def tearDown(self):
         del self.testapp
+
+    def test_home_form_blank(self):
+        res = self.testapp.get("/")
+        self.assertEqual(res.status_code, 200)
+        form = res.forms["cal_form"]
+        self.assertEqual(form["serial"].value, "")
+        self.assertEqual(form["coeff_0"].value, "")
+        
 
     def test_root(self):
         res = self.testapp.get("/")

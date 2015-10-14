@@ -37,6 +37,22 @@
 Exploder</span>, an&nbsp;application for creating and visualizing PDF thumbnails.</p>
               <p>Create <a href="${request.route_url('add_pdf')}"> new
 thumbnails</a></p>
+<form id="cal_form" action="${request.route_url('add_pdf')}" method="post" 
+    accept-charset="utf-8" enctype="multipart/form-data">
+  <div class="form-group">
+    Serial: <textarea class="form-control" name="serial" 
+       rows="1" cols="30"></textarea>
+    <BR>
+    Calibration Coefficient 0: <textarea class="form-control" name="coeff_0" 
+       rows="1" cols="30"></textarea>
+    <BR>
+  </div>
+                  
+  <div class="form-group">
+    <button type="submit" name="form.submitted" value="Save" class="btn btn-default">Save</button>
+  </div>
+</form>
+<br>
             </div>
           </div>
         </div>
