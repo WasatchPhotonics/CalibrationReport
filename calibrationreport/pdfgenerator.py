@@ -35,8 +35,51 @@ class WasatchSinglePage(object):
         story = []
         self.add_header(story, report)
         self.add_images(story, report)
+        self.add_coefficients(story, report)
         self.doc.build(story)
 
+    def add_coefficients(self, story, report):
+        """ Add the calibration equation image, as well as the
+        calibration coefficients defined in the report object.
+        """
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(name='Justify', alignment=TA_JUSTIFY))
+
+        story.append(Spacer(1, 24))
+        equ_text = "<font size=14>Calibration Equation</font>"
+        story.append(Paragraph(equ_text, styles["Normal"]))
+        story.append(Spacer(1, 10))
+ 
+
+        equ_image = Image("database/placeholders/"\
+                          "calibration_equation.png")
+        story.append(equ_image)
+        story.append(Spacer(1, 24))
+
+        pix_text = "<font size=14>Where <b>p</b> is pixel index and:</font>"
+        story.append(Paragraph(pix_text, styles["Normal"]))
+        story.append(Spacer(1, 14))
+
+        coeff_text = "<font size=14><b>C0:</b> %s</font>" \
+                     % report.coeff_0
+        story.append(Paragraph(coeff_text, styles["Normal"]))
+        story.append(Spacer(1, 14))
+
+        coeff_text = "<font size=14><b>C1:</b> %s</font>" \
+                     % report.coeff_1
+        story.append(Paragraph(coeff_text, styles["Normal"]))
+        story.append(Spacer(1, 14))
+
+        coeff_text = "<font size=14><b>C2:</b> %s</font>" \
+                     % report.coeff_2
+        story.append(Paragraph(coeff_text, styles["Normal"]))
+        story.append(Spacer(1, 14))
+
+
+        coeff_text = "<font size=14><b>C3:</b> %s</font>" \
+                     % report.coeff_3
+        story.append(Paragraph(coeff_text, styles["Normal"]))
+        story.append(Spacer(1, 14))
     def add_images(self, story, report):
         """ Load the images as defined by the report filename side by
         side directly under the calibration header information.
