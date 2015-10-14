@@ -293,5 +293,8 @@ class FunctionalTests(unittest.TestCase):
 
         # Click pdf link, follow it and make sure it is the right size
         click_res = submit_res.click(linkid="pdf_link") 
-        self.assertEqual(click_res.content_length, 208628)
+
+        # See the unit test code above for why this is necessary
+        self.assertGreater(click_res.content_length, 208628-500)
+        self.assertLess(click_res.content_length, 208628+500)
 
