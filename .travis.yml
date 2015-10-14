@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+# command to install dependencies
+install:
+  - pip install coveralls
+  - "python setup.py develop"
+# command to run tests
+script: nosetests --cover-erase --with-coverage 
+after_success: coveralls
