@@ -87,8 +87,9 @@ btn-default">Generate</button>
 </form>
             </div>
             <div class="col-xs-6">
-              <div class="pdfbackground">
-                <a id="pdf_link" href="/view_pdf/${fields.serial}"><img src="/view_thumbnail/${fields.serial}"></a>
+              <div>
+                <a id="pdf_link" href="/view_pdf/${fields.serial}"><img
+class="pdfbackground" src="/view_thumbnail/${fields.serial}"></a>
               </div>
             </div>
         </div>
