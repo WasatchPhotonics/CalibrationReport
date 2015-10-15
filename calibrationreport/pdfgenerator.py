@@ -1,4 +1,4 @@
-""" WasatchSinglePage - classes for using reportlab to generate wasatch
+""" PDFGenerator - classes for using reportlab to generate wasatch
 photonics specific calibration reports.
 """
 
@@ -24,8 +24,8 @@ class WasatchSinglePage(object):
     default. All parameters are optional.
     """
     def __init__(self, filename="default.pdf", report=None):
-
         self.filename = filename
+
         # Populate the report object with defaults if not specified
         if report is None:
             report = EmptyReport()
