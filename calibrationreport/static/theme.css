@@ -95,6 +95,9 @@ p {
   float: right;
   right: 0;
 }
+.starter-template .pdfbackground {
+    background-color: #ffffff;
+}
 @media (max-width: 1199px) {
   .starter-template .content h1 {
     font-size: 45px;

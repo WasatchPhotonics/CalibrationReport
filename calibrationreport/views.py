@@ -52,16 +52,15 @@ class CalibrationReportViews(object):
 
         if "form.submitted" in self.request.params:
             report = self.populate_report()
-            pdf_save = "database/%s/report.pdf" % report.serial
+            pdf_save = "database/%s/report.pdf" % slugify(report.serial)
             pdf = WasatchSinglePage(filename=pdf_save, report=report)
             pdf.write_thumbnail()
 
-        pdf_link = "%s/report.pdf" % report.serial
+        pdf_link = "%s/report.pdf" % slugify(report.serial)
         links = {"pdf_link":pdf_link}
-        images = {"thumbnail":"%s/report.png" % report.serial}
+        images = {"thumbnail":"%s/report.png" % slugify(report.serial)}
 
         return dict(fields=report, links=links, images=images)
-
 
     def populate_report(self):
         """ Using the post fields, make the report object match the
@@ -69,7 +68,7 @@ class CalibrationReportViews(object):
         assign the temporary filenames to the report object.
         """
         report = EmptyReport()
-        report.serial = slugify(self.request.POST["serial"])
+        report.serial = self.request.POST["serial"]
         report.coeff_0 = self.request.POST["coeff_0"]
         report.coeff_1 = self.request.POST["coeff_1"]
         report.coeff_2 = self.request.POST["coeff_2"]
@@ -82,14 +81,16 @@ class CalibrationReportViews(object):
             img0_content = WrapStorage("image0_placeholder.jpg")
 
         self.write_file(report.serial, "image0.png", img0_content.file)
-        report.image0 = "database/%s/image0.png" % report.serial
+        report.image0 = "database/%s/image0.png" \
+                        % slugify(report.serial)
 
         img1_content = self.request.POST["image1_file_content"]
         if img1_content == "":
             img1_content = WrapStorage("image1_placeholder.jpg")
 
         self.write_file(report.serial, "image1.png", img1_content.file)
-        report.image1 = "database/%s/image1.png" % report.serial
+        report.image1 = "database/%s/image1.png" \
+                        % slugify(report.serial)
 
         return report
 
@@ -103,7 +104,7 @@ class CalibrationReportViews(object):
             shutil.copyfileobj(upload_file, output_file)
 
         # Create the directory if it does not exist
-        final_dir = "database/%s" % serial
+        final_dir = "database/%s" % slugify(serial)
         if not os.path.exists(final_dir):
             log.info("Make directory: %s", final_dir)
             os.makedirs(final_dir)
