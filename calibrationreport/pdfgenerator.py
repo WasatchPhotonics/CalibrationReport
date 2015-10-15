@@ -158,10 +158,10 @@ class WasatchSinglePage(object):
         """ Reload the file written to disk in init, generate a png of
         the top page, write it to disk and return the filename.
         """
-        png_filename = self.filename.replace(".pdf",".png")
+        png_filename = self.filename.replace(".pdf", ".png")
         first_page_file = "%s[0]" % self.filename
         with WandImage(filename=first_page_file) as img:
-            img.resize(306, 396) # A4 ratio
+            img.resize(496, 701) # A4 ratio 2480x2408
             img.save(filename=png_filename)
 
         log.info("Generated top thumbnail for %s", self.filename)
