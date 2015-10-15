@@ -153,7 +153,21 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.content_length, 208628)
 
-    def test_view_thumbnail(self):
+    def test_view_thumbnail_unknown(self):
+        from calibrationreport.views import CalibrationReportViews
+    
+        # Attempt to get a known invalid thumbnail filename, expect the
+        # placeholder
+        request = testing.DummyRequest()
+        request.matchdict["serial"] = "knownbad01"
+        inst = CalibrationReportViews(request)
+        result = inst.view_thumbnail()
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.content_length, 4197)
+
+    def test_view_thumbnail_known(self):
+        from calibrationreport.views import CalibrationReportViews
         # manually copy a png placeholder into a known location, verify
         # the view can send it back
         known_png = "database/placeholders/known_thumbnail.png"
@@ -163,7 +177,6 @@ class TestCalibrationReportViews(unittest.TestCase):
         os.makedirs(dest_dir)
         shutil.copy(known_png, "%s/thumbnail.png" % dest_dir)
 
-        from calibrationreport.views import CalibrationReportViews
         request = testing.DummyRequest()
         request.matchdict["serial"] = serial
         inst = CalibrationReportViews(request)
@@ -310,6 +323,9 @@ class FunctionalTests(unittest.TestCase):
         # django-filefield-and-invalid-forms/
         self.assertTrue("image0_placeholder.jpg" in res.body)
         self.assertTrue("image1_placeholder.jpg" in res.body)
+
+        match_img = "img src=\"/view_thumbnail"
+        self.assertTrue(match_img in res.body)
 
     def test_submit_and_follow_pdf_link(self):
         res = self.testapp.get("/")

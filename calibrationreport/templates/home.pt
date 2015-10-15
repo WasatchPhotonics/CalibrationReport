@@ -73,7 +73,7 @@ btn-default">Generate</button>
               <p class="lead">Generated Report:
 <br>
 <br>
-<a id="pdf_link" href="/view_pdf/${fields.serial}">view pdf</a>
+<a id="pdf_link" href="/view_pdf/${fields.serial}"><img src="/view_thumbnail/${fields.serial}"></a>
 <br>
             </div>
         </div>

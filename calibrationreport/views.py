@@ -34,7 +34,11 @@ class CalibrationReportViews:
         first page calibration report png thumbnail, return it.
         """    
         serial = slugify(self.request.matchdict["serial"])
-        filename = "database/%s/thumbnail.png" % serial
+        filename = "database/%s/report.png" % serial
+        if not os.path.exists(filename):
+            log.warn("Can't find thumbnail: %s", filename)
+            filename = "database/placeholders/thumbnail_start.png"
+
         return FileResponse(filename)
 
     @view_config(route_name="view_pdf")

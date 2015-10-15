@@ -88,18 +88,30 @@ class WasatchSinglePage(object):
         side directly under the calibration header information.
         """
        
-        image0_filename = report.image0
-        image1_filename = report.image1
-   
+        orig_image0_filename = report.image0
+        orig_image1_filename = report.image1
+  
+        # Resize the images with wand first so they will fit in the 
+        # table style scale height to 150px and preserve aspect ratio
+        image0_filename = "temp_image0.png" 
+        image1_filename = "temp_image1.png" 
+        with WandImage(filename=orig_image0_filename) as img:
+            img.transform(resize='x150')
+            img.save(filename=image0_filename)
+
+        with WandImage(filename=orig_image1_filename) as img:
+            img.transform(resize='x150')
+            img.save(filename=image1_filename)
+
         log.info("PDFGen load: %s", image0_filename) 
         left_img = Image(image0_filename)
-        left_img.drawHeight = 2*inch
-        left_img.drawWidth = 2*inch
+        #left_img.drawHeight = 2*inch
+        #left_img.drawWidth = 2*inch
     
         log.info("PDFGen load: %s", image1_filename) 
         right_img = Image(image1_filename)
-        right_img.drawHeight = 2*inch
-        right_img.drawWidth = 2*inch
+        #right_img.drawHeight = 2*inch
+        #right_img.drawWidth = 2*inch
         data=[[left_img, right_img]]
         
         edge_color = colors.black
@@ -147,7 +159,8 @@ class WasatchSinglePage(object):
         the top page, write it to disk and return the filename.
         """
         png_filename = self.filename.replace(".pdf",".png")
-        with WandImage(filename=self.filename) as img:
+        first_page_file = "%s[0]" % self.filename
+        with WandImage(filename=first_page_file) as img:
             img.resize(306, 396) # A4 ratio
             img.save(filename=png_filename)
 
