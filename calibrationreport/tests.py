@@ -56,7 +56,7 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage()
-        self.exists_and_file_range(filename, base=649000)
+        self.exists_and_file_range(filename, base=203000)
 
     def exists_and_file_range(self, filename, base=1720, deviation=5000):
         """ Helper function to assert that a file exists, and it's size
@@ -77,7 +77,7 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "pdf_check.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage(filename=filename)
-        self.exists_and_file_range(filename=filename, base=649000)
+        self.exists_and_file_range(filename=filename, base=203000)
 
     def touch_then_erase(self, filename):
         """ Helper function to erase a file if it exists. Touches the
@@ -110,7 +110,7 @@ class TestPDFGenerator(unittest.TestCase):
         report.coeff_2 = "1002.1213123*e-06"
         report.coeff_3 = "1003.1213123*e-06"
         pdf = WasatchSinglePage(filename=filename, report=report)
-        self.exists_and_file_range(filename=filename, base=208000)
+        self.exists_and_file_range(filename=filename, base=91463)
 
     def test_thumbnail_generation(self):
         # Create the default report
@@ -118,13 +118,13 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage()
-        self.exists_and_file_range(filename, base=649000)
+        self.exists_and_file_range(filename, base=203000)
 
         # Generate the thumbnail of the first page
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.exists_and_file_range(filename=png_filename, base=75500)
+        self.exists_and_file_range(filename=png_filename, base=140740)
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
@@ -183,7 +183,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         result = inst.view_thumbnail()
         
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.content_length, 61764)
+        self.assertEqual(result.content_length, 4197)
         
     def test_home_empty_view_not_submitted(self):
         # Make sure serial number and all other fields are pre-populated
@@ -282,7 +282,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         # of timestamps in the file. Set a range of +- N bytes to try
         # and compensate
         file_size = os.path.getsize(linked_file)
-        base_size = 649000
+        base_size = 203000
         deviation = 5000
         max_size = base_size + deviation
         min_size = base_size - deviation
@@ -293,8 +293,8 @@ class TestCalibrationReportViews(unittest.TestCase):
         img_file = "database/%s" % result["images"]["thumbnail"]
         self.assertTrue(os.path.exists(img_file))
         img_size = os.path.getsize(img_file)
-        self.assertLess(img_size, 75961 + 500)
-        self.assertGreater(img_size, 75961 - 500)
+        self.assertLess(img_size, 141000 + 1000)
+        self.assertGreater(img_size, 141000 - 1000)
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
@@ -371,8 +371,8 @@ class FunctionalTests(unittest.TestCase):
         click_res = submit_res.click(linkid="pdf_link") 
 
         # See the unit test code above for why this is necessary
-        self.assertGreater(click_res.content_length, 208628-500)
-        self.assertLess(click_res.content_length, 208628+500)
+        self.assertGreater(click_res.content_length, 91000 - 500)
+        self.assertLess(click_res.content_length, 91000 + 500)
 
         # Cleanup the temp files - after the request has completed!
         os.remove("localimg0.jpg")
