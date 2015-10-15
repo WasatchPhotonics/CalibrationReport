@@ -4,13 +4,12 @@ photonics specific calibration reports.
 
 import time
 import logging
-        
+
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.platypus import Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
 from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 
@@ -30,7 +29,7 @@ class WasatchSinglePage(object):
         # Populate the report object with defaults if not specified
         if report is None:
             report = EmptyReport()
-            
+
         self.doc = SimpleDocTemplate(self.filename, pagesize=letter,
                                      rightMargin=72, leftMargin=72,
                                      topMargin=72, bottomMargin=18)
@@ -52,7 +51,7 @@ class WasatchSinglePage(object):
         equ_text = "<font size=14>Calibration Equation</font>"
         story.append(Paragraph(equ_text, styles["Normal"]))
         story.append(Spacer(1, 10))
- 
+
 
         equ_image = Image("database/placeholders/"\
                           "calibration_equation.png")
@@ -87,43 +86,37 @@ class WasatchSinglePage(object):
         """ Load the images as defined by the report filename side by
         side directly under the calibration header information.
         """
-       
+
         orig_image0_filename = report.image0
         orig_image1_filename = report.image1
-  
-        # Resize the images with wand first so they will fit in the 
+
+        # Resize the images with wand first so they will fit in the
         # table style scale height to 150px and preserve aspect ratio
-        image0_filename = "temp_image0.png" 
-        image1_filename = "temp_image1.png" 
+        image0_filename = "temp_image0.png"
+        image1_filename = "temp_image1.png"
         with WandImage(filename=orig_image0_filename) as img:
-            img.transform(resize='x150')
+            img.transform(resize="x150")
             img.save(filename=image0_filename)
 
         with WandImage(filename=orig_image1_filename) as img:
-            img.transform(resize='x150')
+            img.transform(resize="x150")
             img.save(filename=image1_filename)
 
-        log.info("PDFGen load: %s", image0_filename) 
+        #log.info("PDFGen load: %s", image0_filename)
         left_img = Image(image0_filename)
-        #left_img.drawHeight = 2*inch
-        #left_img.drawWidth = 2*inch
-    
-        log.info("PDFGen load: %s", image1_filename) 
+
+        #log.info("PDFGen load: %s", image1_filename)
         right_img = Image(image1_filename)
-        #right_img.drawHeight = 2*inch
-        #right_img.drawWidth = 2*inch
-        data=[[left_img, right_img]]
-        
-        edge_color = colors.black
+        table_data = [[left_img, right_img]]
+
         edge_color = colors.white
-        #table = Table(data, colWidths=200, rowHeights=200)
-        table = Table(data)
-        table.setStyle(TableStyle([
-                                ('INNERGRID', (0,0), (-1,-1), 0.25, edge_color),
-                                ('BOX', (0,0), (-1,-1), 0.25, edge_color),
-                                ('BACKGROUND',(0,0),(-1,2), colors.white)
-                                ]))
-        
+        table = Table(table_data)
+        in_grid = ("INNERGRID", (0, 0), (-1, -1), 0.25, edge_color)
+        box = ("BOX", (0, 0), (-1, -1), 0.25, edge_color)
+        back = ("BACKGROUND", (0, 0), (-1, 2), colors.white)
+        table_style = TableStyle([in_grid, box, back])
+        table.setStyle(table_style)
+
         story.append(table)
 
     def add_header(self, story, report):
@@ -132,8 +125,8 @@ class WasatchSinglePage(object):
         """
         logo_filename = "database/placeholders/"\
                         "Wasatch_Photonics_logo_new.png"
-         
-        logo_img  = Image(logo_filename, width=300, height=92)
+
+        logo_img = Image(logo_filename, width=300, height=92)
         story.append(logo_img)
 
         styles = getSampleStyleSheet()
@@ -152,8 +145,7 @@ class WasatchSinglePage(object):
 
         story.append(Paragraph(info_text, styles["Normal"]))
         story.append(Spacer(1, 12))
-         
-         
+
     def write_thumbnail(self):
         """ Reload the file written to disk in init, generate a png of
         the top page, write it to disk and return the filename.

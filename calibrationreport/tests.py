@@ -5,21 +5,18 @@ import sys
 import shutil
 import logging
 import unittest
-import transaction
 
 from pyramid import testing
 
 from webtest import TestApp, Upload
 
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
 
-log = logging.getLogger()                                                             
-log.setLevel(logging.DEBUG)                                                           
-                                                                                      
-strm = logging.StreamHandler(sys.stderr)                                              
-frmt = logging.Formatter("%(name)s - %(levelname)s %(message)s")                      
-strm.setFormatter(frmt)                                                               
-log.addHandler(strm)    
-
+strm = logging.StreamHandler(sys.stderr)
+frmt = logging.Formatter("%(name)s - %(levelname)s %(message)s")
+strm.setFormatter(frmt)
+log.addHandler(strm)
 
 def register_routes(config):
     """ match the configuration in __init__ (a pyramid tutorials
@@ -43,12 +40,6 @@ class MockStorage(object):
         #log.info("Mock storage file: %s", self.filename)
 
 class TestPDFGenerator(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_all_options_unrequired(self):
         # when creating a pdf generator object, the files is written to
         # disk
@@ -64,7 +55,7 @@ class TestPDFGenerator(unittest.TestCase):
         each other with identical settings have different sizes with
         reportlab.
         """
-        self.assertTrue(os.path.exists(filename)) 
+        self.assertTrue(os.path.exists(filename))
 
         file_size = os.path.getsize(filename)
         max_size = base + deviation
@@ -87,8 +78,8 @@ class TestPDFGenerator(unittest.TestCase):
         # create-empty-file-using-python
         open(filename, 'a').close()
         if os.path.exists(filename):
-            os.remove(filename) 
-        self.assertFalse(os.path.exists(filename)) 
+            os.remove(filename)
+        self.assertFalse(os.path.exists(filename))
 
        
     def test_fully_valid_report(self):
@@ -124,7 +115,7 @@ class TestPDFGenerator(unittest.TestCase):
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.exists_and_file_range(filename=png_filename, base=140740)
+        self.exists_and_file_range(filename=png_filename, base=364000)
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
@@ -199,10 +190,12 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.coeff_1, "0")
         self.assertEqual(result.coeff_2, "0")
         self.assertEqual(result.coeff_3, "0")
-        self.assertEqual(result.image0, 
-            "database/placeholders/image0_placeholder.jpg")
-        self.assertEqual(result.image1, 
-            "database/placeholders/image1_placeholder.jpg")
+            
+        expect_file0 = "database/placeholders/image0_placeholder.jpg"
+        self.assertEqual(result.image0, expect_file0)
+
+        expect_file1 = "database/placeholders/image1_placeholder.jpg"
+        self.assertEqual(result.image1, expect_file1)
 
         images = inst.cal_report()["images"]
         self.assertEqual(images["thumbnail"], "unspecified/report.png")
@@ -230,9 +223,9 @@ class TestCalibrationReportViews(unittest.TestCase):
         inst = CalibrationReportViews(request)
         result = inst.cal_report()["fields"]
         self.assertEqual(result.serial, new_dict["serial"])
-        self.assertEqual(result.image0, 
-            "database/%s/image0.png" % new_dict["serial"])
 
+        expect_img0 = "database/%s/image0.png" % new_dict["serial"]
+        self.assertEqual(result.image0, expect_img0)
             
  
     def test_home_view_submitted(self):
@@ -315,8 +308,8 @@ class TestCalibrationReportViews(unittest.TestCase):
         img_file = "database/%s" % result["images"]["thumbnail"]
         self.assertTrue(os.path.exists(img_file))
         img_size = os.path.getsize(img_file)
-        self.assertLess(img_size, 141000 + 1000)
-        self.assertGreater(img_size, 141000 - 1000)
+        self.assertLess(img_size, 365000 + 1000)
+        self.assertGreater(img_size, 365000 - 1000)
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):

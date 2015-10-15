@@ -1,6 +1,6 @@
 """ datamodel objects used by the calibrationreport project.
 """
-        
+
 class EmptyReport(object):
     """ Helper class for empty calibration report population.
     """

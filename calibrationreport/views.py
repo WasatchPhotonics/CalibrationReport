@@ -1,27 +1,20 @@
 """ pyramid views for the application.
 """
 import os
-import sys
 import shutil
 import logging
 
-from subprocess import Popen
-
-from pyramid.response import Response, FileResponse
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.response import FileResponse
 from pyramid.view import view_config
 
 from slugify import slugify
-
-from wand.image import Image
 
 from calibrationreport.pdfgenerator import WasatchSinglePage
 from calibrationreport.models import EmptyReport
 
 log = logging.getLogger(__name__)
 
-
-class CalibrationReportViews:
+class CalibrationReportViews(object):
     """ Generate pdf and png content of calibration reports based on
     fields supplied by the user.
     """
@@ -32,7 +25,7 @@ class CalibrationReportViews:
     def view_thumbnail(self):
         """ If the matchdict specified serial number directory has a
         first page calibration report png thumbnail, return it.
-        """    
+        """
         serial = slugify(self.request.matchdict["serial"])
         filename = "database/%s/report.png" % serial
         if not os.path.exists(filename):
@@ -49,7 +42,7 @@ class CalibrationReportViews:
         serial = slugify(self.request.matchdict["serial"])
         filename = "database/%s/report.pdf" % serial
         return FileResponse(filename)
- 
+
     @view_config(route_name="cal_report", renderer="templates/home.pt")
     def cal_report(self):
         """ Update the currently displayed calibration report with the
@@ -61,7 +54,7 @@ class CalibrationReportViews:
             report = self.populate_report()
             pdf_save = "database/%s/report.pdf" % report.serial
             pdf = WasatchSinglePage(filename=pdf_save, report=report)
-            png_result = pdf.write_thumbnail()
+            pdf.write_thumbnail()
 
         pdf_link = "%s/report.pdf" % report.serial
         links = {"pdf_link":pdf_link}
@@ -98,10 +91,7 @@ class CalibrationReportViews:
         self.write_file(report.serial, "image1.png", img1_content.file)
         report.image1 = "database/%s/image1.png" % report.serial
 
-
-
         return report
-
 
     def write_file(self, serial, destination, upload_file):
         """ With file from the post request, write to a temporary file,
@@ -121,7 +111,7 @@ class CalibrationReportViews:
         final_file = "%s/%s" % (final_dir, destination)
 
         os.rename(temp_file, final_file)
-        log.info("Saved file: %s" % final_file)
+        log.info("Saved file: %s", final_file)
 
 class WrapStorage(object):
     """ Create a storage object that references a file for use in
