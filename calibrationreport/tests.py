@@ -340,7 +340,7 @@ class FunctionalTests(unittest.TestCase):
         self.assertTrue("image0_placeholder.jpg" in res.body)
         self.assertTrue("image1_placeholder.jpg" in res.body)
 
-        match_img = "img src=\"/view_thumbnail"
+        match_img = "src=\"/view_thumbnail"
         self.assertTrue(match_img in res.body)
 
     def test_submit_and_follow_pdf_link(self):
