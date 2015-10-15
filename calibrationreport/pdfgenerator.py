@@ -14,6 +14,8 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 
+from wand.image import Image as WandImage
+
 from calibrationreport.models import EmptyReport
 
 log = logging.getLogger(__name__)
@@ -24,11 +26,12 @@ class WasatchSinglePage(object):
     """
     def __init__(self, filename="default.pdf", report=None):
 
+        self.filename = filename
         # Populate the report object with defaults if not specified
         if report is None:
             report = EmptyReport()
             
-        self.doc = SimpleDocTemplate(filename, pagesize=letter,
+        self.doc = SimpleDocTemplate(self.filename, pagesize=letter,
                                      rightMargin=72, leftMargin=72,
                                      topMargin=72, bottomMargin=18)
 
@@ -139,5 +142,14 @@ class WasatchSinglePage(object):
         story.append(Spacer(1, 12))
          
          
+    def write_thumbnail(self):
+        """ Reload the file written to disk in init, generate a png of
+        the top page, write it to disk and return the filename.
+        """
+        png_filename = self.filename.replace(".pdf",".png")
+        with WandImage(filename=self.filename) as img:
+            img.resize(306, 396) # A4 ratio
+            img.save(filename=png_filename)
 
-
+        log.info("Generated top thumbnail for %s", self.filename)
+        return png_filename

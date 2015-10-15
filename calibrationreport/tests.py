@@ -112,6 +112,19 @@ class TestPDFGenerator(unittest.TestCase):
         pdf = WasatchSinglePage(filename=filename, report=report)
         self.exists_and_file_range(filename=filename, base=208000)
 
+    def test_thumbnail_generation(self):
+        # Create the default report
+        from calibrationreport.pdfgenerator import WasatchSinglePage
+        filename = "default.pdf"
+        self.touch_then_erase(filename)
+        pdf = WasatchSinglePage()
+        self.exists_and_file_range(filename, base=649000)
+
+        # Generate the thumbnail of the first page
+        png_filename = pdf.write_thumbnail()
+
+        # Verify the size is as epected
+        self.exists_and_file_range(filename=png_filename, base=75500)
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
@@ -140,6 +153,25 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.content_length, 208628)
 
+    def test_view_thumbnail(self):
+        # manually copy a png placeholder into a known location, verify
+        # the view can send it back
+        known_png = "database/placeholders/known_thumbnail.png"
+        serial = "vt0001" # slug-friendly
+        dest_dir = "database/%s" % serial
+        self.clean_directory(dest_dir)
+        os.makedirs(dest_dir)
+        shutil.copy(known_png, "%s/thumbnail.png" % dest_dir)
+
+        from calibrationreport.views import CalibrationReportViews
+        request = testing.DummyRequest()
+        request.matchdict["serial"] = serial
+        inst = CalibrationReportViews(request)
+        result = inst.view_thumbnail()
+        
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.content_length, 61764)
+        
     def test_home_empty_view_not_submitted(self):
         # Make sure serial number and all other fields are pre-populated
         # with defaults
@@ -157,6 +189,9 @@ class TestCalibrationReportViews(unittest.TestCase):
             "database/placeholders/image0_placeholder.jpg")
         self.assertEqual(result.image1, 
             "database/placeholders/image1_placeholder.jpg")
+
+        images = inst.cal_report()["images"]
+        self.assertEqual(images["thumbnail"], "unspecified/report.png")
 
     def clean_directory(self, dir_name):
         """ Helper function to ensure that the working directory is
@@ -195,6 +230,10 @@ class TestCalibrationReportViews(unittest.TestCase):
                          "database/crtest1234/image0.png")
         self.assertEqual(result.image1,
                          "database/crtest1234/image1.png")
+
+        images = inst.cal_report()["images"]
+        self.assertEqual(images["thumbnail"], 
+                         "%s/report.png" % new_dict["serial"])
        
     def test_home_view_submitted_generates_pdf(self):
         # submit the post entry, verify that the pdf file is generated
@@ -236,6 +275,13 @@ class TestCalibrationReportViews(unittest.TestCase):
         min_size = base_size - deviation
         self.assertLess(file_size, max_size)
         self.assertGreater(file_size, min_size)
+
+        # Make sure the thumbnail image exists and is within file size
+        img_file = "database/%s" % result["images"]["thumbnail"]
+        self.assertTrue(os.path.exists(img_file))
+        img_size = os.path.getsize(img_file)
+        self.assertLess(img_size, 75961 + 500)
+        self.assertGreater(img_size, 75961 - 500)
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):

@@ -27,7 +27,16 @@ class CalibrationReportViews:
     """
     def __init__(self, request):
         self.request = request
-    
+
+    @view_config(route_name="view_thumbnail")
+    def view_thumbnail(self):
+        """ If the matchdict specified serial number directory has a
+        first page calibration report png thumbnail, return it.
+        """    
+        serial = slugify(self.request.matchdict["serial"])
+        filename = "database/%s/thumbnail.png" % serial
+        return FileResponse(filename)
+
     @view_config(route_name="view_pdf")
     def view_pdf(self):
         """ If the matchdict specified serial number directory has a
@@ -48,11 +57,13 @@ class CalibrationReportViews:
             report = self.populate_report()
             pdf_save = "database/%s/report.pdf" % report.serial
             pdf = WasatchSinglePage(filename=pdf_save, report=report)
+            png_result = pdf.write_thumbnail()
 
         pdf_link = "%s/report.pdf" % report.serial
         links = {"pdf_link":pdf_link}
+        images = {"thumbnail":"%s/report.png" % report.serial}
 
-        return dict(fields=report, links=links)
+        return dict(fields=report, links=links, images=images)
 
 
     def populate_report(self):
