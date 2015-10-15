@@ -82,13 +82,23 @@ class CalibrationReportViews:
         report.coeff_2 = self.request.POST["coeff_2"]
         report.coeff_3 = self.request.POST["coeff_3"]
 
+        # If the image0 value is not populated, set it to the
+        # placeholder image
         img0_content = self.request.POST["image0_file_content"]
+        if img0_content == "":
+            img0_content = WrapStorage("image0_placeholder.jpg")
+
         self.write_file(report.serial, "image0.png", img0_content.file)
         report.image0 = "database/%s/image0.png" % report.serial
 
         img1_content = self.request.POST["image1_file_content"]
+        if img1_content == "":
+            img1_content = WrapStorage("image1_placeholder.jpg")
+
         self.write_file(report.serial, "image1.png", img1_content.file)
         report.image1 = "database/%s/image1.png" % report.serial
+
+
 
         return report
 
@@ -112,3 +122,13 @@ class CalibrationReportViews:
 
         os.rename(temp_file, final_file)
         log.info("Saved file: %s" % final_file)
+
+class WrapStorage(object):
+    """ Create a storage object that references a file for use in
+    place of invalid uploaded objects from POST.
+    """
+    def __init__(self, source_file_name):
+        prefix = "database/placeholders"
+        self.filename = "%s/%s" % (prefix, source_file_name)
+        self.file = file(self.filename)
+        log.info("Wrap storage file: %s", self.filename)

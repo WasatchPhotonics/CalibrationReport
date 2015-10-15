@@ -135,6 +135,8 @@ class TestCalibrationReportViews(unittest.TestCase):
         testing.tearDown()
 
     def test_view_pdf(self):
+        from calibrationreport.views import CalibrationReportViews
+
         # manually copy a pdf placeholder into a known location, verify
         # the view can send it back
         known_pdf = "database/placeholders/known_view.pdf"
@@ -144,7 +146,6 @@ class TestCalibrationReportViews(unittest.TestCase):
         os.makedirs(dest_dir)
         shutil.copy(known_pdf, "%s/report.pdf" % dest_dir)
 
-        from calibrationreport.views import CalibrationReportViews
         request = testing.DummyRequest()
         request.matchdict["serial"] = serial
         inst = CalibrationReportViews(request)
@@ -186,9 +187,9 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.content_length, 4197)
         
     def test_home_empty_view_not_submitted(self):
+        from calibrationreport.views import CalibrationReportViews
         # Make sure serial number and all other fields are pre-populated
         # with defaults
-        from calibrationreport.views import CalibrationReportViews
         request = testing.DummyRequest()
         inst = CalibrationReportViews(request)
         result = inst.cal_report()["fields"]
@@ -212,12 +213,33 @@ class TestCalibrationReportViews(unittest.TestCase):
         """
         if os.path.exists(dir_name):
             shutil.rmtree(dir_name)
-        
+       
+    def test_home_view_invalid_posts(self):
+        from calibrationreport.views import CalibrationReportViews
+        # Populate a POST entry with invalid fields, verify that the
+        # defaults are returned
+
+        # empty storage fields
+        new_dict = {"form.submitted":"True", "serial":"invtest1234",
+                    "coeff_0":"100", "coeff_1":"101", "coeff_2":"102",
+                    "coeff_3":"103",
+                    "image0_file_content":"",
+                    "image1_file_content":""}
+
+        request = testing.DummyRequest(new_dict)
+        inst = CalibrationReportViews(request)
+        result = inst.cal_report()["fields"]
+        self.assertEqual(result.serial, new_dict["serial"])
+        self.assertEqual(result.image0, 
+            "database/%s/image0.png" % new_dict["serial"])
+
+            
+ 
     def test_home_view_submitted(self):
+        from calibrationreport.views import CalibrationReportViews
         # Populate a POST entry, verify the returned fields are
         # populated with the submitted entries. Don't check the pdf
         # status, just the population of the form 
-        from calibrationreport.views import CalibrationReportViews
 
         image0_store = MockStorage("image0_placeholder.jpg")
         image1_store = MockStorage("image1_placeholder.jpg")
