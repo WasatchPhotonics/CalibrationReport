@@ -43,7 +43,8 @@ class CalibrationReportViews(object):
         filename = "database/%s/report.pdf" % serial
         return FileResponse(filename)
 
-    @view_config(route_name="cal_report", renderer="templates/home.pt")
+    @view_config(route_name="cal_report", 
+                 renderer="templates/calibration_report_form.pt")
     def cal_report(self):
         """ Update the currently displayed calibration report with the
         fields submitted from post.

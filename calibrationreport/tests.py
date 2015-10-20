@@ -11,7 +11,7 @@ from pyramid import testing
 from webtest import TestApp, Upload
 
 log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 # Specify stdout as the logging output stream to reduce verbosity in the
 # nosetest output. This will let you still see all of logging when
