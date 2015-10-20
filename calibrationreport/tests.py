@@ -13,7 +13,10 @@ from webtest import TestApp, Upload
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
-strm = logging.StreamHandler(sys.stderr)
+# Specify stdout as the logging output stream to reduce verbosity in the
+# nosetest output. This will let you still see all of logging when
+# running with python -u -m unittest, yet swallow it all in nosetest.
+strm = logging.StreamHandler(sys.stdout)
 frmt = logging.Formatter("%(name)s - %(levelname)s %(message)s")
 strm.setFormatter(frmt)
 log.addHandler(strm)
