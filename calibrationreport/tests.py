@@ -10,7 +10,7 @@ from pyramid import testing
 
 from webtest import TestApp, Upload
 
-from calibrationreport.coverageutils import file_range, touch_erase
+from coverageutils import file_range, touch_erase, size_range
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -277,7 +277,7 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         # Make sure the thumbnail image exists and is within file size
         img_file = "reports/%s" % result["images"]["thumbnail"]
-        self.assertTrue(file_range(img_file, 423808))
+        self.assertTrue(file_range(img_file, 423808, ok_range=500))
 
 
 class FunctionalTests(unittest.TestCase):
@@ -356,8 +356,7 @@ class FunctionalTests(unittest.TestCase):
         click_res = submit_res.click(linkid="pdf_link") 
 
         # See the unit test code above for why this is necessary
-        self.assertGreater(click_res.content_length, 106338 - 5000)
-        self.assertLess(click_res.content_length, 106338 + 5000)
+        size_range(click_res.content_length, 106338, ok_range=5000)
 
         # Cleanup the temp files - after the request has completed!
         os.remove("localimg0.jpg")
