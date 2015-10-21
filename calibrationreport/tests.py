@@ -26,7 +26,7 @@ class MockStorage(object):
     view unittests.
     """
     def __init__(self, source_file_name):
-        prefix = "database/placeholders"
+        prefix = "reports/placeholders"
         self.filename = "%s/%s" % (prefix, source_file_name)
         self.file = file(self.filename)
         #log.info("Mock storage file: %s", self.filename)
@@ -81,8 +81,8 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "with_images_check.pdf"
         self.touch_then_erase(filename)
 
-        img0 = "database/placeholders/image0_defined.jpg"
-        img1 = "database/placeholders/image1_defined.jpg"
+        img0 = "reports/placeholders/image0_defined.jpg"
+        img1 = "reports/placeholders/image1_defined.jpg"
 
         report = EmptyReport()
         report.serial = "DEFINEDSERIAL01234"
@@ -121,9 +121,9 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         # manually copy a pdf placeholder into a known location, verify
         # the view can send it back
-        known_pdf = "database/placeholders/known_view.pdf"
+        known_pdf = "reports/placeholders/known_view.pdf"
         serial = "vt0001" # slug-friendly
-        dest_dir = "database/%s" % serial
+        dest_dir = "reports/%s" % serial
         self.clean_directory(dest_dir)
         os.makedirs(dest_dir)
         shutil.copy(known_pdf, "%s/report.pdf" % dest_dir)
@@ -153,9 +153,9 @@ class TestCalibrationReportViews(unittest.TestCase):
         from calibrationreport.views import CalibrationReportViews
         # manually copy a png placeholder into a known location, verify
         # the view can send it back
-        known_png = "database/placeholders/known_thumbnail.png"
+        known_png = "reports/placeholders/known_thumbnail.png"
         serial = "vt0001" # slug-friendly
-        dest_dir = "database/%s" % serial
+        dest_dir = "reports/%s" % serial
         self.clean_directory(dest_dir)
         os.makedirs(dest_dir)
         shutil.copy(known_png, "%s/thumbnail.png" % dest_dir)
@@ -182,10 +182,10 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.coeff_2, "0")
         self.assertEqual(result.coeff_3, "0")
             
-        expect_file0 = "database/placeholders/image0_placeholder.jpg"
+        expect_file0 = "reports/placeholders/image0_placeholder.jpg"
         self.assertEqual(result.image0, expect_file0)
 
-        expect_file1 = "database/placeholders/image1_placeholder.jpg"
+        expect_file1 = "reports/placeholders/image1_placeholder.jpg"
         self.assertEqual(result.image1, expect_file1)
 
         images = inst.cal_report()["images"]
@@ -215,7 +215,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         result = inst.cal_report()["fields"]
         self.assertEqual(result.serial, new_dict["serial"])
 
-        expect_img0 = "database/%s/image0.png" % new_dict["serial"]
+        expect_img0 = "reports/%s/image0.png" % new_dict["serial"]
         self.assertEqual(result.image0, expect_img0)
             
  
@@ -246,9 +246,9 @@ class TestCalibrationReportViews(unittest.TestCase):
         # When submitting an entry, expect the new hardcoded filename
         # for the uploaded imagery
         self.assertEqual(result.image0,
-                         "database/crtest1234/image0.png")
+                         "reports/crtest1234/image0.png")
         self.assertEqual(result.image1,
-                         "database/crtest1234/image1.png")
+                         "reports/crtest1234/image1.png")
 
         images = inst.cal_report()["images"]
         self.assertEqual(images["thumbnail"], 
@@ -261,7 +261,7 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         # Delete the test file if it exists
         serial = "crtest456" # slug-friendly serial
-        pdf_directory = "database/%s" % serial
+        pdf_directory = "reports/%s" % serial
         self.clean_directory(pdf_directory)
 
         # Generate a post request. These mock data storage filenames
@@ -281,7 +281,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         links = result["links"]
 
         # Verify the file described in the links dict exists
-        linked_file = "database/%s" % links["pdf_link"]
+        linked_file = "reports/%s" % links["pdf_link"]
         self.assertTrue(os.path.exists(linked_file))
 
         # PDF generation is indeterminate file size, apparently because
@@ -296,7 +296,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertGreater(file_size, min_size)
 
         # Make sure the thumbnail image exists and is within file size
-        img_file = "database/%s" % result["images"]["thumbnail"]
+        img_file = "reports/%s" % result["images"]["thumbnail"]
         self.assertTrue(os.path.exists(img_file))
         img_size = os.path.getsize(img_file)
         # Huge margins to support travis build environment
@@ -348,8 +348,8 @@ class FunctionalTests(unittest.TestCase):
         # Submitting via an actual browser strips the directory
         # prefixes. Copy the files to temporary locations to exactly
         # mimic this
-        image0_file = "database/placeholders/image0_defined.jpg"
-        image1_file = "database/placeholders/image1_defined.jpg"
+        image0_file = "reports/placeholders/image0_defined.jpg"
+        image1_file = "reports/placeholders/image1_defined.jpg"
         shutil.copy(image0_file, "localimg0.jpg")
         shutil.copy(image1_file, "localimg1.jpg")
 
@@ -372,8 +372,8 @@ class FunctionalTests(unittest.TestCase):
         # The files are uploaded and hardcoded to filename: image0 and
         # image1.png regardless of their format. Expect this hardcoded
         # filename returned
-        self.assertTrue("database/ft789/image0.png" in submit_res.body)
-        self.assertTrue("database/ft789/image1.png" in submit_res.body)
+        self.assertTrue("reports/ft789/image0.png" in submit_res.body)
+        self.assertTrue("reports/ft789/image1.png" in submit_res.body)
 
         # Click pdf link, follow it and make sure it is the right size
         click_res = submit_res.click(linkid="pdf_link") 

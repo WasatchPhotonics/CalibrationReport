@@ -27,10 +27,10 @@ class CalibrationReportViews(object):
         first page calibration report png thumbnail, return it.
         """
         serial = slugify(self.request.matchdict["serial"])
-        filename = "database/%s/report.png" % serial
+        filename = "reports/%s/report.png" % serial
         if not os.path.exists(filename):
             log.warn("Can't find thumbnail: %s", filename)
-            filename = "database/placeholders/thumbnail_start.png"
+            filename = "reports/placeholders/thumbnail_start.png"
 
         return FileResponse(filename)
 
@@ -40,7 +40,7 @@ class CalibrationReportViews(object):
         calibration report pdf, return it.
         """
         serial = slugify(self.request.matchdict["serial"])
-        filename = "database/%s/report.pdf" % serial
+        filename = "reports/%s/report.pdf" % serial
         return FileResponse(filename)
 
     @view_config(route_name="cal_report", 
@@ -54,7 +54,7 @@ class CalibrationReportViews(object):
         if "form.submitted" in self.request.params:
             log.info("Submitted: %s", self.request.params)
             report = self.populate_report()
-            pdf_save = "database/%s/report.pdf" % slugify(report.serial)
+            pdf_save = "reports/%s/report.pdf" % slugify(report.serial)
             pdf = WasatchSinglePage(filename=pdf_save, report=report)
             pdf.write_thumbnail()
 
@@ -83,7 +83,7 @@ class CalibrationReportViews(object):
             img0_content = WrapStorage("image0_placeholder.jpg")
 
         self.write_file(report.serial, "image0.png", img0_content.file)
-        report.image0 = "database/%s/image0.png" \
+        report.image0 = "reports/%s/image0.png" \
                         % slugify(report.serial)
 
         img1_content = self.request.POST["image1_file_content"]
@@ -91,7 +91,7 @@ class CalibrationReportViews(object):
             img1_content = WrapStorage("image1_placeholder.jpg")
 
         self.write_file(report.serial, "image1.png", img1_content.file)
-        report.image1 = "database/%s/image1.png" \
+        report.image1 = "reports/%s/image1.png" \
                         % slugify(report.serial)
 
         return report
@@ -100,13 +100,13 @@ class CalibrationReportViews(object):
         """ With file from the post request, write to a temporary file,
         then ultimately to the destination specified.
         """
-        temp_file = "database/temp_file"
+        temp_file = "reports/temp_file"
         upload_file.seek(0)
         with open(temp_file, "wb") as output_file:
             shutil.copyfileobj(upload_file, output_file)
 
         # Create the directory if it does not exist
-        final_dir = "database/%s" % slugify(serial)
+        final_dir = "reports/%s" % slugify(serial)
         if not os.path.exists(final_dir):
             log.info("Make directory: %s", final_dir)
             os.makedirs(final_dir)
@@ -121,7 +121,7 @@ class WrapStorage(object):
     place of invalid uploaded objects from POST.
     """
     def __init__(self, source_file_name):
-        prefix = "database/placeholders"
+        prefix = "reports/placeholders"
         self.filename = "%s/%s" % (prefix, source_file_name)
         self.file = file(self.filename)
         log.info("Wrap storage file: %s", self.filename)

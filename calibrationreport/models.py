@@ -9,5 +9,5 @@ class EmptyReport(object):
     coeff_1 = "0"
     coeff_2 = "0"
     coeff_3 = "0"
-    image0 = "database/placeholders/image0_placeholder.jpg"
-    image1 = "database/placeholders/image1_placeholder.jpg"
+    image0 = "reports/placeholders/image0_placeholder.jpg"
+    image1 = "reports/placeholders/image1_placeholder.jpg"
