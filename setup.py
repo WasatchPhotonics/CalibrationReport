@@ -23,6 +23,10 @@ requires = [
     "python-slugify",
     "wand",
     "reportlab",
+    "colander",
+    "deform",
+    "nose",
+    "coverage"
     ]
 
 setup(name="calibrationreport",
