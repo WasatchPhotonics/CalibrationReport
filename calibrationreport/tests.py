@@ -182,8 +182,11 @@ class TestCalibrationReportViews(unittest.TestCase):
         # When images are uploaded, the hardcoded filenames are used.
         # Verify that they have been overwritten in the data filename
         # fields
-        self.assertEqual(data.top_image_filename, "top_image.png")
-        self.assertEqual(data.bottom_image_filename, "bottom_image.png")
+        slugged = slugify(post_dict["serial"])
+        self.assertEqual(data.top_image_filename, 
+                         "reports/%s/top_image.png" % slugged)
+        self.assertEqual(data.bottom_image_filename, 
+                         "reports/%s/bottom_image.png" % slugged)
 
     def test_invalid_serial_coefficients_rules_always_return_form(self):
         from calibrationreport.views import CalibrationReportViews
@@ -233,11 +236,11 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         pdf_filename = "reports/%s/report.pdf" \
                        % slugify(post_dict["serial"])
-        self.assertTrue(file_range(pdf_filename, 101243, ok_range=5000))
+        self.assertTrue(file_range(pdf_filename, 115746, ok_range=20000))
 
         png_thumb = "reports/%s/report.png" \
                     % slugify(post_dict["serial"])
-        self.assertTrue(file_range(png_thumb, 234008, ok_range=40000))
+        self.assertTrue(file_range(png_thumb, 233994, ok_range=40000))
 
             
     def test_view_existing_pdf(self):

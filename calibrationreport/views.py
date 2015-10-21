@@ -80,8 +80,11 @@ class CalibrationReportViews(object):
                 self.populate_data(local, captured)
                 self.write_files(captured)
 
-                local.top_image_filename = "top_image.png"
-                local.bottom_image_filename = "bottom_image.png"
+                local.slugged = slugify(captured["serial"])
+                local.top_image_filename = "reports/%s/top_image.png" \
+                                           % local.slugged
+                local.bottom_image_filename = "reports/%s/bottom_image.png" \
+                                           % local.slugged
 
                 pdf_save = "reports/%s/report.pdf" \
                            % slugify(local.serial)

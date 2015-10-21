@@ -74,6 +74,7 @@ class WasatchSinglePage(object):
         top_found = os.path.exists(report.top_image_filename)
         bot_found = os.path.exists(report.bottom_image_filename)
 
+        log.info("Add image: %s, %s", report.top_image_filename, report.bottom_image_filename)
         if not top_found or not bot_found:
             log.warn("Not adding unavailable product images")
             return
