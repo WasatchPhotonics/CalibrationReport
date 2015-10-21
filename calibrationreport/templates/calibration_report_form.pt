@@ -61,6 +61,7 @@
                     </div>
                     <div class="panel-body">
                         <span tal:replace="structure form"/>
+                        <BR>
                     </div>
                 </div>
             </div>
