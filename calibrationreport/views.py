@@ -52,6 +52,7 @@ class CalibrationReportViews(object):
         report = EmptyReport()
 
         if "form.submitted" in self.request.params:
+            log.info("Submitted: %s", self.request.params)
             report = self.populate_report()
             pdf_save = "database/%s/report.pdf" % slugify(report.serial)
             pdf = WasatchSinglePage(filename=pdf_save, report=report)

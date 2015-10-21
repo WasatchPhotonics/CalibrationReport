@@ -21,17 +21,6 @@ frmt = logging.Formatter("%(name)s - %(levelname)s %(message)s")
 strm.setFormatter(frmt)
 log.addHandler(strm)
 
-def register_routes(config):
-    """ match the configuration in __init__ (a pyramid tutorials
-    convention), to allow the unit tests to use the routes.
-    """
-    config.add_route("view_pdf", "view_pdf/{serial}")
-    # why doon't you need to register routes?
-
-
-    #
-
-
 class MockStorage(object):
     """ Create a storage object that references a file for use in
     view unittests.
@@ -50,7 +39,7 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage()
-        self.exists_and_file_range(filename, base=203000)
+        self.exists_and_file_range(filename, base=186783)
 
     def exists_and_file_range(self, filename, base=1720, deviation=5000):
         """ Helper function to assert that a file exists, and it's size
@@ -71,7 +60,7 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "pdf_check.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage(filename=filename)
-        self.exists_and_file_range(filename=filename, base=203000)
+        self.exists_and_file_range(filename=filename, base=186783)
 
     def touch_then_erase(self, filename):
         """ Helper function to erase a file if it exists. Touches the
@@ -104,7 +93,7 @@ class TestPDFGenerator(unittest.TestCase):
         report.coeff_2 = "1002.1213123*e-06"
         report.coeff_3 = "1003.1213123*e-06"
         pdf = WasatchSinglePage(filename=filename, report=report)
-        self.exists_and_file_range(filename=filename, base=91463)
+        self.exists_and_file_range(filename=filename, base=106350)
 
     def test_thumbnail_generation(self):
         # Create the default report
@@ -112,18 +101,17 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage()
-        self.exists_and_file_range(filename, base=203000)
+        self.exists_and_file_range(filename, base=186783)
 
         # Generate the thumbnail of the first page
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.exists_and_file_range(filename=png_filename, base=364000)
+        self.exists_and_file_range(filename=png_filename, base=423600)
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
-        #register_routes(self.config)
 
     def tearDown(self):
         testing.tearDown()
@@ -300,7 +288,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         # of timestamps in the file. Set a range of +- N bytes to try
         # and compensate
         file_size = os.path.getsize(linked_file)
-        base_size = 203000
+        base_size = 186789
         deviation = 5000
         max_size = base_size + deviation
         min_size = base_size - deviation
@@ -312,8 +300,8 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertTrue(os.path.exists(img_file))
         img_size = os.path.getsize(img_file)
         # Huge margins to support travis build environment
-        self.assertLess(img_size, 365000 + 5000)
-        self.assertGreater(img_size, 365000 - 5000)
+        self.assertLess(img_size, 423626 + 5000)
+        self.assertGreater(img_size, 423626 - 5000)
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
@@ -374,6 +362,7 @@ class FunctionalTests(unittest.TestCase):
         # Get the new form, make sure the fields are populated as
         # expected
         new_form = submit_res.forms["cal_form"]
+        #log.info("Full submit res %s", submit_res)
         self.assertEqual(new_form["serial"].value, "ft789")
         self.assertEqual(new_form["coeff_0"].value, "200.9892*e-07")
         self.assertEqual(new_form["coeff_1"].value, "201.9892*e-07")
@@ -390,8 +379,8 @@ class FunctionalTests(unittest.TestCase):
         click_res = submit_res.click(linkid="pdf_link") 
 
         # See the unit test code above for why this is necessary
-        self.assertGreater(click_res.content_length, 91000 - 5000)
-        self.assertLess(click_res.content_length, 91000 + 5000)
+        self.assertGreater(click_res.content_length, 106338 - 5000)
+        self.assertLess(click_res.content_length, 106338 + 5000)
 
         # Cleanup the temp files - after the request has completed!
         os.remove("localimg0.jpg")
