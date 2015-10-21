@@ -93,7 +93,7 @@ class TestPDFGenerator(unittest.TestCase):
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.assertTrue(file_range(png_filename, 423808))
+        self.assertTrue(file_range(png_filename, 423808, ok_range=500))
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
