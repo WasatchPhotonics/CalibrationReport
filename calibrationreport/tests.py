@@ -229,11 +229,11 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         pdf_filename = "reports/%s/report.pdf" \
                        % slugify(post_dict["serial"])
-        self.assertTrue(file_range(pdf_filename, 106316, ok_range=5000))
+        self.assertTrue(file_range(pdf_filename, 115775, ok_range=5000))
 
         png_thumb = "reports/%s/report.png" \
                     % slugify(post_dict["serial"])
-        self.assertTrue(file_range(png_thumb, 218022, ok_range=5000))
+        self.assertTrue(file_range(png_thumb, 234008, ok_range=5000))
 
             
     def test_view_existing_pdf(self):

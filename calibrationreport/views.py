@@ -80,7 +80,7 @@ class CalibrationReportViews(object):
                 return dict(data=local, form=form.render(captured))
                 
             except ValidationFailure as exc:
-                log.exception(exc)
+                #log.exception(exc)
                 log.critical("Validation failure, return default form")
                 return dict(data=local, form=exc.render())
 
