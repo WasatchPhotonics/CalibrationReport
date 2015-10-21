@@ -45,7 +45,7 @@ class WasatchSinglePage(object):
         timestamp.
         """
 
-        serial_text = "<font size=62>%s</font>" % report.serial
+        serial_text = "<font size=62><i>%s</i></font>" % report.serial
         self.create_paragraph(serial_text, 20, 65)
 
         time_txt = "Calibrated by: Auto-Calibrated on %s" % time.ctime()

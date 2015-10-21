@@ -274,7 +274,7 @@ class TestCalibrationReportViews(unittest.TestCase):
     def test_view_thumbnail_known(self):
         from calibrationreport.views import CalibrationReportViews
         
-        known_png = "reports/placeholders/known_thumbnail.png"
+        known_png = "resources/known_thumbnail.png"
         serial = "ut0001" # slug-friendly
         dest_dir = "reports/%s" % serial
         os.makedirs(dest_dir)
