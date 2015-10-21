@@ -43,11 +43,11 @@ class TestCoverageUtils(unittest.TestCase):
         self.assertFalse(file_range(filename, 10000))
 
     def test_file_sizes_out_of_range(self):
-        filename = "resources/example_qr_label.png"
+        filename = "resources/image0_defined.jpg"
         # Too small with default range 50
-        self.assertFalse(file_range(filename, 30000))
+        self.assertFalse(file_range(filename, 63000))
         # Too big
-        self.assertFalse(file_range(filename, 33000))
+        self.assertFalse(file_range(filename, 62000))
 
 class TestPDFGenerator(unittest.TestCase):
     def test_all_options_unrequired(self):
@@ -178,6 +178,8 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(data.coefficient_1, post_dict["coefficient_1"])
         self.assertEqual(data.coefficient_2, post_dict["coefficient_2"])
         self.assertEqual(data.coefficient_3, post_dict["coefficient_3"])
+
+        # When 
         self.assertEqual(data.top_image_filename, top_img_file)
         self.assertEqual(data.bottom_image_filename, bottom_img_file)
 
