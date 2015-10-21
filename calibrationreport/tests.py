@@ -51,14 +51,14 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage()
-        self.assertTrue(file_range(filename, 186783))
+        self.assertTrue(file_range(filename, 186783, ok_range=5000))
 
     def test_filename_and_report_object_specified(self):
         from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "pdf_check.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage(filename=filename)
-        self.assertTrue(file_range(filename, 186783))
+        self.assertTrue(file_range(filename, 186783, ok_range=5000))
 
     def test_fully_valid_report(self):
         from calibrationreport.models import EmptyReport
@@ -87,13 +87,13 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage()
-        self.assertTrue(file_range(filename, 186783))
+        self.assertTrue(file_range(filename, 186783, ok_range=5000))
 
         # Generate the thumbnail of the first page
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.assertTrue(file_range(png_filename, 423808, ok_range=500))
+        self.assertTrue(file_range(png_filename, 423808, ok_range=5000))
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
@@ -277,7 +277,7 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         # Make sure the thumbnail image exists and is within file size
         img_file = "reports/%s" % result["images"]["thumbnail"]
-        self.assertTrue(file_range(img_file, 423808, ok_range=500))
+        self.assertTrue(file_range(img_file, 423808, ok_range=5000))
 
 
 class FunctionalTests(unittest.TestCase):
