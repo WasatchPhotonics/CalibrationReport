@@ -235,7 +235,7 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         png_thumb = "reports/%s/report.png" \
                     % slugify(post_dict["serial"])
-        self.assertTrue(file_range(png_thumb, 234008, ok_range=5000))
+        self.assertTrue(file_range(png_thumb, 234008, ok_range=40000))
 
             
     def test_view_existing_pdf(self):
