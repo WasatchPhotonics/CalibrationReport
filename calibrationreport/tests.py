@@ -93,7 +93,7 @@ class TestPDFGenerator(unittest.TestCase):
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.assertTrue(file_range(png_filename, 423808, ok_range=20000))
+        self.assertTrue(file_range(png_filename, 423808, ok_range=40000))
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
@@ -279,7 +279,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         img_file = "reports/%s" % result["images"]["thumbnail"]
         print "actual size is: %s" % (os.path.getsize(img_file))
         log.warn("warn size is: %s" % (os.path.getsize(img_file)))
-        self.assertTrue(file_range(img_file, 423808, ok_range=20000))
+        self.assertTrue(file_range(img_file, 423808, ok_range=40000))
 
 
 class FunctionalTests(unittest.TestCase):
