@@ -15,13 +15,13 @@ def touch_erase(filename):
 
     return os.path.exists(filename)
 
-def file_range(filename, expected_size, ok_range=50):
+def file_range(filename, expected_size, ok_range=500):
     """ Files are slightly different sizes on travis build then on local
     machine. For tests that include building an image using Pillow. I'm
     guessing this is due to slightly different pillow versions. This
     also seems like a bad idea, as your CI environment is now different
     from your dev. Trying to match the pillow version on your fedora 22
-    core system seems like a bad idea too. This seems to be a 0.003%
+    core system seems like a bad idea too. This seems to be a 0.030%
     difference in file size.
     """
     if not os.path.exists(filename):

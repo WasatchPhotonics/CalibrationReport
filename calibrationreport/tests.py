@@ -10,7 +10,7 @@ from pyramid import testing
 
 from webtest import TestApp, Upload
 
-from calibrationreport.coverageutils import file_range
+from calibrationreport.coverageutils import file_range, touch_erase
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -47,39 +47,25 @@ class TestCoverageUtils(unittest.TestCase):
 
 class TestPDFGenerator(unittest.TestCase):
     def test_all_options_unrequired(self):
-        # when creating a pdf generator object, the files is written to
-        # disk
         from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "default.pdf"
-        self.touch_then_erase(filename)
+        self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage()
         self.assertTrue(file_range(filename, 186783))
 
     def test_filename_and_report_object_specified(self):
         from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "pdf_check.pdf"
-        self.touch_then_erase(filename)
+        self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage(filename=filename)
         self.assertTrue(file_range(filename, 186783))
 
-    def touch_then_erase(self, filename):
-        """ Helper function to erase a file if it exists. Touches the
-        file first so coverage is always 100%
-        """
-        # http://stackoverflow.com/questions/12654772/\
-        # create-empty-file-using-python
-        open(filename, 'a').close()
-        if os.path.exists(filename):
-            os.remove(filename)
-        self.assertFalse(os.path.exists(filename))
-
-       
     def test_fully_valid_report(self):
         from calibrationreport.models import EmptyReport
         from calibrationreport.pdfgenerator import WasatchSinglePage 
 
         filename = "with_images_check.pdf"
-        self.touch_then_erase(filename)
+        self.assertFalse(touch_erase(filename))
 
         img0 = "reports/placeholders/image0_defined.jpg"
         img1 = "reports/placeholders/image1_defined.jpg"
@@ -99,7 +85,7 @@ class TestPDFGenerator(unittest.TestCase):
         # Create the default report
         from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "default.pdf"
-        self.touch_then_erase(filename)
+        self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage()
         self.assertTrue(file_range(filename, 186783))
 
