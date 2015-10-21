@@ -32,12 +32,22 @@ class CalibrationReportViews(object):
         first page calibration report png thumbnail, return it.
         """
         serial = slugify(self.request.matchdict["serial"])
+        log.info("Show thumbnail %s", serial)
         filename = "reports/%s/report.png" % serial
         if not os.path.exists(filename):
             log.warn("Can't find thumbnail: %s", filename)
             filename = "resources/thumbnail_start.png"
 
         return FileResponse(filename)
+
+    @view_config(route_name="blank_thumbnail")
+    def blank_thumbnail(self):
+        """ Match a route without the serial in matchdict, return the
+        placeholder image.
+        """
+        log.info("Return blank thumbnail")
+        return FileResponse("resources/S_00101_report.png")
+    
 
     @view_config(route_name="view_pdf")
     def view_pdf(self):

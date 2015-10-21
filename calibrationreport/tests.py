@@ -281,79 +281,93 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.content_length, 4197)
         
+    def test_serialless_route_to_placeholder_thumbnail(self):
+        from calibrationreport.views import CalibrationReportViews
 
+        request = testing.DummyRequest()
+        inst = CalibrationReportViews(request)
+        result = inst.blank_thumbnail()
+        
+        self.assertEqual(result.content_length, 179243)
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
+        self.clean_test_files()
+
         from calibrationreport import main
         settings = {}
         app = main({}, **settings)
         self.testapp = TestApp(app)
 
     def tearDown(self):
+        # Uncomment this line for cleaner cleanup at the expense of
+        # viewing failed files
+        #self.clean_test_files()
         del self.testapp
+
+    def clean_test_files(self):
+        # Remove the directory if it exists
+        test_serials = ["ft789"]
+
+        for item in test_serials:
+            dir_out = "reports/%s" % slugify(item)
+            if os.path.exists(dir_out):
+                shutil.rmtree(dir_out)
 
     def test_home_form_starts_prepopulated(self):
         res = self.testapp.get("/")
         self.assertEqual(res.status_code, 200)
-        #log.info("Body: %s", res.body)
-        form = res.forms["cal_form"]
-        self.assertEqual(form["serial"].value, "unspecified")
-        self.assertEqual(form["coeff_0"].value, "0")
-        self.assertEqual(form["coeff_1"].value, "0")
-        self.assertEqual(form["coeff_2"].value, "0")
-        self.assertEqual(form["coeff_3"].value, "0")
+        form = res.forms["deform"]
+        self.assertEqual(form["serial"].value, "")
+        self.assertEqual(form["coefficient_0"].value, "")
+        self.assertEqual(form["coefficient_1"].value, "")
+        self.assertEqual(form["coefficient_2"].value, "")
+        self.assertEqual(form["coefficient_3"].value, "")
 
-        # Apparently you can't access that "No file chosen" message, use
-        # a separate field to mimic the last file uploaded. 
-        # https://snakeycode.wordpress.com/2015/05/05/\
-        # django-filefield-and-invalid-forms/
-        self.assertTrue("image0_placeholder.jpg" in res.body)
-        self.assertTrue("image1_placeholder.jpg" in res.body)
-
-        match_img = "src=\"/view_thumbnail"
+        match_img = "src=\"/view_thumbnail/"
         self.assertTrue(match_img in res.body)
+
+        match_link = "href=\"/view_pdf/"
+        self.assertTrue(match_link in res.body)
 
     def test_submit_and_follow_pdf_link(self):
         res = self.testapp.get("/")
         self.assertEqual(res.status_code, 200)
         #log.info("Body: %s", res.body)
-        form = res.forms["cal_form"]
+        form = res.forms["deform"]
         form["serial"] = "ft789"
-        form["coeff_0"] = "200.9892*e-07"
-        form["coeff_1"] = "201.9892*e-07"
-        form["coeff_2"] = "202.9892*e-07"
-        form["coeff_3"] = "203.9892*e-07"
+        form["coefficient_0"] = "200.9892*e-07"
+        form["coefficient_1"] = "201.9892*e-07"
+        form["coefficient_2"] = "202.9892*e-07"
+        form["coefficient_3"] = "203.9892*e-07"
 
         # Submitting via an actual browser strips the directory
         # prefixes. Copy the files to temporary locations to exactly
         # mimic this
-        image0_file = "reports/placeholders/image0_defined.jpg"
-        image1_file = "reports/placeholders/image1_defined.jpg"
+        image0_file = "resources/image0_defined.jpg"
+        image1_file = "resources/image1_defined.jpg"
         shutil.copy(image0_file, "localimg0.jpg")
         shutil.copy(image1_file, "localimg1.jpg")
 
-        form["image0_file_content"] = Upload("localimg0.jpg")
-        form["image1_file_content"] = Upload("localimg1.jpg")
 
+        # From: # http://stackoverflow.com/questions/3337736/\
+        # how-do-i-use-pylons-paste-webtest-with-multiple-\
+        # checkboxes-with-the-same-name
+        top_index = 0
+        bottom_index = 1
+        form.set("upload", Upload("localimg0.jpg"), top_index)
+        form.set("upload", Upload("localimg1.jpg"), bottom_index)
 
-        submit_res = form.submit("form.submitted")
-
+        submit_res = form.submit("submit")
         # Get the new form, make sure the fields are populated as
         # expected
-        new_form = submit_res.forms["cal_form"]
+        new_form = submit_res.forms["deform"]
         #log.info("Full submit res %s", submit_res)
         self.assertEqual(new_form["serial"].value, "ft789")
-        self.assertEqual(new_form["coeff_0"].value, "200.9892*e-07")
-        self.assertEqual(new_form["coeff_1"].value, "201.9892*e-07")
-        self.assertEqual(new_form["coeff_2"].value, "202.9892*e-07")
-        self.assertEqual(new_form["coeff_3"].value, "203.9892*e-07")
-
-        # The files are uploaded and hardcoded to filename: image0 and
-        # image1.png regardless of their format. Expect this hardcoded
-        # filename returned
-        self.assertTrue("reports/ft789/image0.png" in submit_res.body)
-        self.assertTrue("reports/ft789/image1.png" in submit_res.body)
+        self.assertEqual(new_form["coefficient_0"].value, "200.9892*e-07")
+        self.assertEqual(new_form["coefficient_1"].value, "201.9892*e-07")
+        self.assertEqual(new_form["coefficient_2"].value, "202.9892*e-07")
+        self.assertEqual(new_form["coefficient_3"].value, "203.9892*e-07")
 
         # Click pdf link, follow it and make sure it is the right size
         click_res = submit_res.click(linkid="pdf_link") 
