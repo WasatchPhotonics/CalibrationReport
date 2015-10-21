@@ -1,3 +1,8 @@
-.responsive_img{
+.responsive_img {
     width:100%;
+}
+
+.form_holder {
+    color:black;
+    width:20%;
 }
