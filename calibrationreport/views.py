@@ -78,7 +78,11 @@ class CalibrationReportViews(object):
                 captured = form.validate(controls)
 
                 self.populate_data(local, captured)
-                self.write_files(local)
+                self.write_files(captured)
+
+                local.top_image_filename = "top_image.png"
+                local.bottom_image_filename = "bottom_image.png"
+
                 pdf_save = "reports/%s/report.pdf" \
                            % slugify(local.serial)
                 pdf = WasatchSinglePage(filename=pdf_save, report=local)
@@ -95,17 +99,41 @@ class CalibrationReportViews(object):
         return dict(data=local, form=form.render())
 
 
-    def write_files(self, upload_obj):
-        """ With file(s) from the post request, write to a temporary 
-        file, then ultimately to the destination specified.
+    def write_files(self, captured):
+        """ With parameters in the post request, create a destination
+        directory in reports/ then write each of the post requests files
+        to disk.
         """
+ 
         # Create the directory if it does not exist
-        final_dir = "reports/%s" % slugify(upload_obj.serial)
+        final_dir = "reports/%s" % slugify(captured["serial"])
         if not os.path.exists(final_dir):
             log.info("Make directory: %s", final_dir)
             os.makedirs(final_dir)
 
-       
+        if captured["top_image_upload"] != colander.null:
+            upload = captured["top_image_upload"]
+            final_file = "%s/top_image.png" % final_dir
+            self.single_file_write(upload["fp"], final_file)
+
+        if captured["bottom_image_upload"] != colander.null:
+            upload = captured["bottom_image_upload"]
+            final_file = "%s/bottom_image.png" % final_dir
+            self.single_file_write(upload["fp"], final_file)
+
+    def single_file_write(self, file_pointer, filename):
+        """ Read from the file pointer, write intermediate file, and
+        then copy to final destination.
+        """
+        temp_file = "reports/temp_file"
+
+        file_pointer.seek(0)
+        with open(temp_file, "wb") as output_file:
+            shutil.copyfileobj(file_pointer, output_file)
+
+        os.rename(temp_file, filename)
+        log.info("Saved file: %s", filename) 
+
     def populate_data(self, local, captured):
         """ Convenience function to fill the data has with the values
         from the POST'ed form.
