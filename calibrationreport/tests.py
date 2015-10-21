@@ -10,6 +10,8 @@ from pyramid import testing
 
 from webtest import TestApp, Upload
 
+from calibrationreport.coverageutils import file_range
+
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
@@ -31,6 +33,18 @@ class MockStorage(object):
         self.file = file(self.filename)
         #log.info("Mock storage file: %s", self.filename)
 
+class TestCoverageUtils(unittest.TestCase):
+    def test_file_does_not_exist(self):
+        filename = "known_unknown_file"
+        self.assertFalse(file_range(filename, 10000))
+
+    def test_file_sizes_out_of_range(self):
+        filename = "resources/example_qr_label.png"
+        # Too small with default range 50
+        self.assertFalse(file_range(filename, 30000))
+        # Too big
+        self.assertFalse(file_range(filename, 33000))
+
 class TestPDFGenerator(unittest.TestCase):
     def test_all_options_unrequired(self):
         # when creating a pdf generator object, the files is written to
@@ -39,28 +53,14 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage()
-        self.exists_and_file_range(filename, base=186783)
-
-    def exists_and_file_range(self, filename, base=1720, deviation=5000):
-        """ Helper function to assert that a file exists, and it's size
-        is within the expected range. PDF's generated within seconds of
-        each other with identical settings have different sizes with
-        reportlab.
-        """
-        self.assertTrue(os.path.exists(filename))
-
-        file_size = os.path.getsize(filename)
-        max_size = base + deviation
-        min_size = base - deviation
-        self.assertLess(file_size, max_size)
-        self.assertGreater(file_size, min_size)
+        self.assertTrue(file_range(filename, 186783))
 
     def test_filename_and_report_object_specified(self):
         from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "pdf_check.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage(filename=filename)
-        self.exists_and_file_range(filename=filename, base=186783)
+        self.assertTrue(file_range(filename, 186783))
 
     def touch_then_erase(self, filename):
         """ Helper function to erase a file if it exists. Touches the
@@ -93,7 +93,7 @@ class TestPDFGenerator(unittest.TestCase):
         report.coeff_2 = "1002.1213123*e-06"
         report.coeff_3 = "1003.1213123*e-06"
         pdf = WasatchSinglePage(filename=filename, report=report)
-        self.exists_and_file_range(filename=filename, base=106350)
+        self.assertTrue(file_range(filename, 106350))
 
     def test_thumbnail_generation(self):
         # Create the default report
@@ -101,13 +101,13 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.touch_then_erase(filename)
         pdf = WasatchSinglePage()
-        self.exists_and_file_range(filename, base=186783)
+        self.assertTrue(file_range(filename, 186783))
 
         # Generate the thumbnail of the first page
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.exists_and_file_range(filename=png_filename, base=423600)
+        self.assertTrue(file_range(png_filename, 423808))
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
@@ -287,21 +287,12 @@ class TestCalibrationReportViews(unittest.TestCase):
         # PDF generation is indeterminate file size, apparently because
         # of timestamps in the file. Set a range of +- N bytes to try
         # and compensate
-        file_size = os.path.getsize(linked_file)
-        base_size = 186789
-        deviation = 5000
-        max_size = base_size + deviation
-        min_size = base_size - deviation
-        self.assertLess(file_size, max_size)
-        self.assertGreater(file_size, min_size)
+        self.assertTrue(file_range(linked_file, 186789))
 
         # Make sure the thumbnail image exists and is within file size
         img_file = "reports/%s" % result["images"]["thumbnail"]
-        self.assertTrue(os.path.exists(img_file))
-        img_size = os.path.getsize(img_file)
-        # Huge margins to support travis build environment
-        self.assertLess(img_size, 423626 + 5000)
-        self.assertGreater(img_size, 423626 - 5000)
+        self.assertTrue(file_range(img_file, 423808))
+
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
