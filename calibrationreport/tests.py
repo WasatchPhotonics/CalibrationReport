@@ -205,7 +205,6 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(data.coefficient_1, post_dict["coefficient_1"])
         self.assertEqual(data.coefficient_2, post_dict["coefficient_2"])
         self.assertEqual(data.coefficient_3, "")
-   
         
     def test_post_generates_pdf_file_on_disk(self):
         from calibrationreport.views import CalibrationReportViews
@@ -232,6 +231,13 @@ class TestCalibrationReportViews(unittest.TestCase):
                        % slugify(post_dict["serial"])
 
         self.assertTrue(file_range(pdf_filename, 106316, ok_range=5000))
+
+
+
+
+
+
+
 
             
     def test_view_pdf(self):
