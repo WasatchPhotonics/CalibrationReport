@@ -35,7 +35,7 @@ class CalibrationReportViews(object):
         filename = "reports/%s/report.png" % serial
         if not os.path.exists(filename):
             log.warn("Can't find thumbnail: %s", filename)
-            filename = "reports/placeholders/thumbnail_start.png"
+            filename = "resources/thumbnail_start.png"
 
         return FileResponse(filename)
 

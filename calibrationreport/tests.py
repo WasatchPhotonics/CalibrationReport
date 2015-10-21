@@ -114,7 +114,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         test_serials = ["FT1234", "UT5555", "UT0001"]
 
         for item in test_serials:
-            dir_out = "label_files/%s" % slugify(item)
+            dir_out = "reports/%s" % slugify(item)
             if os.path.exists(dir_out):
                 shutil.rmtree(dir_out)
 
@@ -236,11 +236,11 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertTrue(file_range(png_thumb, 218022, ok_range=5000))
 
             
-    def test_view_pdf(self):
+    def test_view_existing_pdf(self):
         from calibrationreport.views import CalibrationReportViews
 
-        known_pdf = "reports/placeholders/known_view.pdf"
-        serial = "vt0001" # slug-friendly
+        known_pdf = "resources/known_report.pdf"
+        serial = "ut0001" # slug-friendly
         dest_dir = "reports/%s" % serial
         os.makedirs(dest_dir)
         shutil.copy(known_pdf, "%s/report.pdf" % dest_dir)
@@ -256,8 +256,6 @@ class TestCalibrationReportViews(unittest.TestCase):
     def test_view_thumbnail_unknown(self):
         from calibrationreport.views import CalibrationReportViews
     
-        # Attempt to get a known invalid thumbnail filename, expect the
-        # placeholder
         request = testing.DummyRequest()
         request.matchdict["serial"] = "knownbad01"
         inst = CalibrationReportViews(request)
@@ -268,12 +266,10 @@ class TestCalibrationReportViews(unittest.TestCase):
 
     def test_view_thumbnail_known(self):
         from calibrationreport.views import CalibrationReportViews
-        # manually copy a png placeholder into a known location, verify
-        # the view can send it back
+        
         known_png = "reports/placeholders/known_thumbnail.png"
-        serial = "vt0001" # slug-friendly
+        serial = "ut0001" # slug-friendly
         dest_dir = "reports/%s" % serial
-        self.clean_directory(dest_dir)
         os.makedirs(dest_dir)
         shutil.copy(known_png, "%s/thumbnail.png" % dest_dir)
 
