@@ -6,13 +6,13 @@ from deform import widget, FileData
 class EmptyReport(object):
     """ Helper class for empty calibration report population.
     """
-    serial = "S-00181"
+    serial = ""
     coefficient_0 = ""
     coefficient_1 = ""
     coefficient_2 = ""
     coefficient_3 = ""
-    top_image_filename = "resources/top_image_785l.jpg"
-    bottom_image_filename = "resources/bottom_image_785l.jpg"
+    top_image_filename = ""
+    bottom_image_filename = ""
 
 class MemoryTmpStore(dict):
     """ Instances of this class implement the

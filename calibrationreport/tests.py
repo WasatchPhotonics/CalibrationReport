@@ -55,14 +55,14 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage()
-        self.assertTrue(file_range(filename, 186783, ok_range=5000))
+        self.assertTrue(file_range(filename, 115760, ok_range=5000))
 
     def test_filename_and_report_object_specified(self):
         from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "pdf_check.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage(filename=filename)
-        self.assertTrue(file_range(filename, 186783, ok_range=5000))
+        self.assertTrue(file_range(filename, 115760, ok_range=5000))
 
     def test_fully_valid_report(self):
         from calibrationreport.models import EmptyReport
@@ -83,7 +83,7 @@ class TestPDFGenerator(unittest.TestCase):
         report.coeff_2 = "1002.1213123*e-06"
         report.coeff_3 = "1003.1213123*e-06"
         pdf = WasatchSinglePage(filename=filename, report=report)
-        self.assertTrue(file_range(filename, 106350))
+        self.assertTrue(file_range(filename, 115772))
 
     def test_thumbnail_generation(self):
         # Create the default report
@@ -91,13 +91,13 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage()
-        self.assertTrue(file_range(filename, 186783, ok_range=5000))
+        self.assertTrue(file_range(filename, 115772, ok_range=5000))
 
         # Generate the thumbnail of the first page
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.assertTrue(file_range(png_filename, 423808, ok_range=40000))
+        self.assertTrue(file_range(png_filename, 233629, ok_range=40000))
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
@@ -131,8 +131,8 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(data.coefficient_1, "")
         self.assertEqual(data.coefficient_2, "")
         self.assertEqual(data.coefficient_3, "")
-        self.assertEqual(data.top_image_filename, "top_blank")
-        self.assertEqual(data.bottom_image_filename, "bottom_blank")
+        self.assertEqual(data.top_image_filename, "")
+        self.assertEqual(data.bottom_image_filename, "")
 
     def test_post_completed_form_no_images_returns_populated(self):
         from calibrationreport.views import CalibrationReportViews
@@ -231,7 +231,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         pdf_filename = "reports/%s/report.pdf" \
                        % slugify(post_dict["serial"])
 
-        self.assertTrue(file_range(pdf_filename, 100000))
+        self.assertTrue(file_range(pdf_filename, 106316, ok_range=5000))
 
             
     def test_view_pdf(self):

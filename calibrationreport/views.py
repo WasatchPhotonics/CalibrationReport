@@ -7,6 +7,8 @@ import logging
 from pyramid.response import FileResponse
 from pyramid.view import view_config
 
+import colander
+
 from deform import Form
 from deform.exception import ValidationFailure
 
@@ -84,6 +86,7 @@ class CalibrationReportViews(object):
                 captured = form.validate(controls)
 
                 self.populate_data(local, captured)
+                self.write_files(local)
                 pdf_save = "reports/%s/report.pdf" \
                            % slugify(local.serial)
                 pdf = WasatchSinglePage(filename=pdf_save, report=local)
@@ -100,6 +103,18 @@ class CalibrationReportViews(object):
                 return dict(data=local, form=exc.render())
 
         return dict(data=local, form=form.render())
+
+
+    def write_files(self, upload_obj):
+        """ With file(s) from the post request, write to a temporary 
+        file, then ultimately to the destination specified.
+        """
+        # Create the directory if it does not exist
+        final_dir = "reports/%s" % slugify(upload_obj.serial)
+        if not os.path.exists(final_dir):
+            log.info("Make directory: %s", final_dir)
+            os.makedirs(final_dir)
+
        
     def populate_data(self, local, captured):
         """ Convenience function to fill the data has with the values
@@ -110,12 +125,19 @@ class CalibrationReportViews(object):
         local.coefficient_1 = captured["coefficient_1"]
         local.coefficient_2 = captured["coefficient_2"]
         local.coefficient_3 = captured["coefficient_3"]
-    
-        top_filename = captured["top_image_upload"]["filename"]
-        local.top_image_filename = top_filename
+  
+        # Images are optional, set to placeholder if not specified
+        if captured["top_image_upload"] == colander.null:
+            local.top_image_filename = "resources/image0_defined.jpg"
+        else:
+            top_filename = captured["top_image_upload"]["filename"]
+            local.top_image_filename = top_filename
 
-        bottom_filename = captured["bottom_image_upload"]["filename"]
-        local.bottom_image_filename = bottom_filename
+        if captured["bottom_image_upload"] == colander.null:
+            local.bottom_image_filename = "resources/image1_defined.jpg"
+        else:
+            bottom_filename = captured["bottom_image_upload"]["filename"]
+            local.bottom_image_filename = bottom_filename
 
         return local
 
