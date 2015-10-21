@@ -66,8 +66,8 @@ class WasatchSinglePage(object):
         # document as expected. The output size when height scaled to
         # 125px will be close to 300x175 when viewed in the pdf.
             
-        orig_image0_filename = report.image0
-        orig_image1_filename = report.image1
+        orig_image0_filename = report.top_image_filename
+        orig_image1_filename = report.bottom_image_filename
 
         image0_filename = "temp_image0.png"
         image1_filename = "temp_image1.png"
@@ -117,13 +117,13 @@ class WasatchSinglePage(object):
         pfx_txt = "Where 'p' is pixel index, and:"
         self.create_paragraph(pfx_txt, 60, 190)
 
-        c0_txt = "Coefficient <b>C0 =</b> %s" % report.coeff_0
+        c0_txt = "Coefficient <b>C0 =</b> %s" % report.coefficient_0
         self.create_paragraph(c0_txt, 60, 200)
-        c1_txt = "Coefficient <b>C1 =</b> %s" % report.coeff_1
+        c1_txt = "Coefficient <b>C1 =</b> %s" % report.coefficient_1
         self.create_paragraph(c1_txt, 60, 208)
-        c2_txt = "Coefficient <b>C2 =</b> %s" % report.coeff_2
+        c2_txt = "Coefficient <b>C2 =</b> %s" % report.coefficient_2
         self.create_paragraph(c2_txt, 60, 216) 
-        c3_txt = "Coefficient <b>C3 =</b> %s" % report.coeff_3
+        c3_txt = "Coefficient <b>C3 =</b> %s" % report.coefficient_3
         self.create_paragraph(c3_txt, 60, 224)
 
 

@@ -84,6 +84,12 @@ class CalibrationReportViews(object):
                 captured = form.validate(controls)
 
                 self.populate_data(local, captured)
+                pdf_save = "reports/%s/report.pdf" \
+                           % slugify(local.serial)
+                pdf = WasatchSinglePage(filename=pdf_save, report=local)
+                pdf.write_thumbnail()
+
+                
 
                 # Re-render the form with the fields already populated 
                 return dict(data=local, form=form.render(captured))

@@ -180,14 +180,14 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(data.coefficient_3, post_dict["coefficient_3"])
         self.assertEqual(data.top_image_filename, top_img_file)
         self.assertEqual(data.bottom_image_filename, bottom_img_file)
-    
 
-    def test_post_serial_coefficients_rules_always_return_form(self):
+    def test_invalid_serial_coefficients_rules_always_return_form(self):
         from calibrationreport.views import CalibrationReportViews
     
         # The deform library handles the user feedback on field
         # requirements. Populate a POST request with known invalid data
-        # for the various fields, make sure they match on return
+        # for the various fields, make sure they are reset to the
+        # default blanks where applicable.
         post_dict = {"submit":"submit", 
                      "serial":"", # blank serial disallowed
                      "coefficient_0":"", 
@@ -205,7 +205,33 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(data.coefficient_1, post_dict["coefficient_1"])
         self.assertEqual(data.coefficient_2, post_dict["coefficient_2"])
         self.assertEqual(data.coefficient_3, "")
-    
+   
+        
+    def test_post_generates_pdf_file_on_disk(self):
+        from calibrationreport.views import CalibrationReportViews
+      
+        top_img_file = "resources/image0_defined.jpg" 
+        bottom_img_file = "resources/image1_defined.jpg" 
+        top_img = DeformMockFieldStorage(top_img_file)
+        bottom_img = DeformMockFieldStorage(bottom_img_file)
+   
+        top_upload_dict = {"upload":top_img}
+        bottom_upload_dict = {"upload":bottom_img}
+ 
+        post_dict = {"submit":"submit", "serial":"UT5555",
+                     "coefficient_0":"100", "coefficient_1":"101", 
+                     "coefficient_2":"102", "coefficient_3":"103",
+                     "top_image_upload":top_upload_dict,
+                     "bottom_image_upload":bottom_upload_dict}
+
+        request = testing.DummyRequest(post_dict)
+        inst = CalibrationReportViews(request)
+        result = inst.calibration_report()
+
+        pdf_filename = "reports/%s/report.pdf" \
+                       % slugify(post_dict["serial"])
+
+        self.assertTrue(file_range(pdf_filename, 100000))
 
             
     def test_view_pdf(self):
