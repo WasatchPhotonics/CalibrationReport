@@ -83,7 +83,7 @@ class TestPDFGenerator(unittest.TestCase):
         report.top_image_filename = img0
         report.bottom_image_filename = img1
         pdf = WasatchSinglePage(filename=filename, report=report)
-        self.assertTrue(file_range(filename, 106311))
+        self.assertTrue(file_range(filename, 106494))
 
     def test_thumbnail_generation(self):
         # Create the default report
@@ -295,7 +295,7 @@ class TestCalibrationReportViews(unittest.TestCase):
         inst = CalibrationReportViews(request)
         result = inst.blank_thumbnail()
         
-        self.assertEqual(result.content_length, 179243)
+        self.assertEqual(result.content_length, 180552)
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
