@@ -6,13 +6,13 @@ from deform import widget, FileData
 class EmptyReport(object):
     """ Helper class for empty calibration report population.
     """
-    serial = "unspecified"
-    coeff_0 = "0"
-    coeff_1 = "0"
-    coeff_2 = "0"
-    coeff_3 = "0"
-    image0 = "reports/placeholders/image0_placeholder.jpg"
-    image1 = "reports/placeholders/image1_placeholder.jpg"
+    serial = ""
+    coefficient_0 = ""
+    coefficient_1 = ""
+    coefficient_2 = ""
+    coefficient_3 = ""
+    top_image_filename = "top_blank"
+    bottom_image_filename = "bottom_blank"
 
 class MemoryTmpStore(dict):
     """ Instances of this class implement the
@@ -57,15 +57,15 @@ class ReportSchema(colander.Schema):
     # Various demos delete this temporary file on succesful submission
     top_tmp_store = MemoryTmpStore()
     fuw = widget.FileUploadWidget(top_tmp_store)
-    top_image = csn(FileData(), 
-                    missing=colander.null,
-                    widget=fuw,
-                    description="Top product image")
+    top_image_upload = csn(FileData(), 
+                           missing=colander.null,
+                           widget=fuw,
+                           description="Top product image")
 
     bottom_tmp_store = MemoryTmpStore()
     fuw = widget.FileUploadWidget(bottom_tmp_store)
-    bottom_image = csn(FileData(), 
-                       missing=colander.null,
-                       widget=fuw,
-                       description="Bottom product image")
+    bottom_image_upload = csn(FileData(), 
+                              missing=colander.null,
+                              widget=fuw,
+                              description="Bottom product image")
 

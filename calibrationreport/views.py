@@ -7,10 +7,13 @@ import logging
 from pyramid.response import FileResponse
 from pyramid.view import view_config
 
+from deform import Form
+from deform.exception import ValidationFailure
+
 from slugify import slugify
 
 from calibrationreport.pdfgenerator import WasatchSinglePage
-from calibrationreport.models import EmptyReport
+from calibrationreport.models import EmptyReport, ReportSchema
 
 log = logging.getLogger(__name__)
 
@@ -43,9 +46,7 @@ class CalibrationReportViews(object):
         filename = "reports/%s/report.pdf" % serial
         return FileResponse(filename)
 
-    @view_config(route_name="cal_report", 
-                 renderer="templates/calibration_report_form.pt")
-    def cal_report(self):
+    def old_cal_report(self):
         """ Update the currently displayed calibration report with the
         fields submitted from post.
         """
@@ -63,6 +64,52 @@ class CalibrationReportViews(object):
         images = {"thumbnail":"%s/report.png" % slugify(report.serial)}
 
         return dict(fields=report, links=links, images=images)
+
+    @view_config(route_name="calibration_report",
+                 renderer="templates/calibration_report_form.pt")
+    def calibration_report(self):
+        """ Process form paramters, create a pdf calibration report form
+        and generate a thumbnail view.
+        """
+        schema = ReportSchema()
+        form = Form(schema, buttons=("submit",))
+        local = EmptyReport()
+
+        if "submit" in self.request.POST:
+            log.info("submit: %s", self.request.POST)
+            try:
+                # Deserialize into hash on validation - capture is the
+                # "appstruct" in deform nomenclature
+                controls = self.request.POST.items()
+                captured = form.validate(controls)
+
+                self.populate_data(local, captured)
+
+                # Re-render the form with the fields already populated 
+                return dict(data=local, form=form.render(captured))
+                
+            except ValidationFailure as exc:
+                log.exception(exc)
+                log.critical("Validation failure, return default form")
+                return dict(data=local, form=exc.render())
+
+        return dict(data=local, form=form.render())
+       
+    def populate_data(self, local, captured):
+        """ Convenience function to fill the data has with the values
+        from the POST'ed form.
+        """ 
+        local.serial = captured["serial"]
+        local.coefficient_0 = captured["coefficient_0"]
+        local.coefficient_1 = captured["coefficient_1"]
+        local.coefficient_2 = captured["coefficient_2"]
+        local.coefficient_3 = captured["coefficient_3"]
+        local.top_image_filename = captured["top_image_upload"]["filename"]
+        local.bottom_image_filename = captured["bottom_image_upload"]["filename"]
+                    #local.filename = captured["upload"]["filename"]
+                    #local.upload = captured["upload"]
+                    #self.write_file(local)
+        return local
 
     def populate_report(self):
         """ Using the post fields, make the report object match the
@@ -115,13 +162,3 @@ class CalibrationReportViews(object):
 
         os.rename(temp_file, final_file)
         log.info("Saved file: %s", final_file)
-
-class WrapStorage(object):
-    """ Create a storage object that references a file for use in
-    place of invalid uploaded objects from POST.
-    """
-    def __init__(self, source_file_name):
-        prefix = "reports/placeholders"
-        self.filename = "%s/%s" % (prefix, source_file_name)
-        self.file = file(self.filename)
-        log.info("Wrap storage file: %s", self.filename)

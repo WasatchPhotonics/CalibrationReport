@@ -6,6 +6,8 @@ import shutil
 import logging
 import unittest
 
+from slugify import slugify
+
 from pyramid import testing
 
 from webtest import TestApp, Upload
@@ -23,15 +25,17 @@ frmt = logging.Formatter("%(name)s - %(levelname)s %(message)s")
 strm.setFormatter(frmt)
 log.addHandler(strm)
 
-class MockStorage(object):
+class DeformMockFieldStorage(object):
     """ Create a storage object that references a file for use in
-    view unittests.
+    view unittests. Deform/colander requires a dictionary to address the
+    multiple upload fields. This is not required for 'plain' html file
+    uploads.
     """
     def __init__(self, source_file_name):
-        prefix = "reports/placeholders"
-        self.filename = "%s/%s" % (prefix, source_file_name)
+        self.filename = source_file_name
         self.file = file(self.filename)
-        #log.info("Mock storage file: %s", self.filename)
+        self.type = "file"
+        self.length = os.path.getsize(self.filename)
 
 class TestCoverageUtils(unittest.TestCase):
     def test_file_does_not_exist(self):
@@ -97,16 +101,109 @@ class TestPDFGenerator(unittest.TestCase):
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
+        self.clean_test_files()
         self.config = testing.setUp()
 
     def tearDown(self):
+        # Comment out this line for easier post-test state inspections
+        #self.clean_test_files()
         testing.tearDown()
+
+    def clean_test_files(self):
+        # Remove the directory if it exists
+        test_serials = ["FT1234", "UT5555", "UT0001"]
+
+        for item in test_serials:
+            dir_out = "label_files/%s" % slugify(item)
+            if os.path.exists(dir_out):
+                shutil.rmtree(dir_out)
+
+    def test_get_returns_default_form(self):
+        from calibrationreport.views import CalibrationReportViews
+
+        request = testing.DummyRequest()
+        inst = CalibrationReportViews(request)
+        result = inst.calibration_report()
+
+        data = result["data"]
+        self.assertEqual(data.serial, "")
+        self.assertEqual(data.coefficient_0, "")
+        self.assertEqual(data.coefficient_1, "")
+        self.assertEqual(data.coefficient_2, "")
+        self.assertEqual(data.coefficient_3, "")
+        self.assertEqual(data.top_image_filename, "top_blank")
+        self.assertEqual(data.bottom_image_filename, "bottom_blank")
+
+    def test_post_completed_form_no_images_returns_populated(self):
+        from calibrationreport.views import CalibrationReportViews
+        post_dict = {"submit":"submit", "serial":"UT5555",
+                     "coefficient_0":"100", "coefficient_1":"101", 
+                     "coefficient_2":"102", "coefficient_3":"103"}
+
+        request = testing.DummyRequest(post_dict)
+        inst = CalibrationReportViews(request)
+        result = inst.calibration_report()
+
+        data = result["data"]
+        self.assertEqual(data.serial, post_dict["serial"])
+        self.assertEqual(data.coefficient_0, post_dict["coefficient_0"])
+        self.assertEqual(data.coefficient_1, post_dict["coefficient_1"])
+        self.assertEqual(data.coefficient_2, post_dict["coefficient_2"])
+        self.assertEqual(data.coefficient_3, post_dict["coefficient_3"])
+        
+    def test_post_completed_form_with_images_returns_populated(self):
+        from calibrationreport.views import CalibrationReportViews
+      
+        top_img_file = "resources/image0_defined.jpg" 
+        bottom_img_file = "resources/image1_defined.jpg" 
+        top_img = DeformMockFieldStorage(top_img_file)
+        bottom_img = DeformMockFieldStorage(bottom_img_file)
+   
+        top_upload_dict = {"upload":top_img}
+        bottom_upload_dict = {"upload":bottom_img}
+ 
+        post_dict = {"submit":"submit", "serial":"UT5555",
+                     "coefficient_0":"100", "coefficient_1":"101", 
+                     "coefficient_2":"102", "coefficient_3":"103",
+                     "top_image_upload":top_upload_dict,
+                     "bottom_image_upload":bottom_upload_dict}
+
+        request = testing.DummyRequest(post_dict)
+        inst = CalibrationReportViews(request)
+        result = inst.calibration_report()
+
+        data = result["data"]
+        self.assertEqual(data.serial, post_dict["serial"])
+        self.assertEqual(data.coefficient_0, post_dict["coefficient_0"])
+        self.assertEqual(data.coefficient_1, post_dict["coefficient_1"])
+        self.assertEqual(data.coefficient_2, post_dict["coefficient_2"])
+        self.assertEqual(data.coefficient_3, post_dict["coefficient_3"])
+        self.assertEqual(data.top_image_filename, top_img_file)
+        self.assertEqual(data.bottom_image_filename, bottom_img_file)
+                
+    def test_post_with_image_returns_populated_data(self):
+        from stickercode.views import LabelViews
+
+        fname = "resources/known_example.png"
+        img_back = MockFieldStorage(fname)
+        upload_dict = {"upload":img_back}
+ 
+        test_serial = "FT1234" 
+        new_dict = {"submit":"True", "serial":test_serial,
+                    "domain":"https://waspho.com",
+                    "upload":upload_dict} 
+        request = testing.DummyRequest(new_dict)
+        inst = LabelViews(request)
+        result = inst.qr_label()
+
+        data = result["data"]
+        self.assertEqual(data.serial, test_serial)
+        self.assertEqual(data.domain, "https://waspho.com")
+        self.assertEqual(data.filename, fname)
 
     def test_view_pdf(self):
         from calibrationreport.views import CalibrationReportViews
 
-        # manually copy a pdf placeholder into a known location, verify
-        # the view can send it back
         known_pdf = "reports/placeholders/known_view.pdf"
         serial = "vt0001" # slug-friendly
         dest_dir = "reports/%s" % serial
@@ -363,3 +460,4 @@ class FunctionalTests(unittest.TestCase):
         # Cleanup the temp files - after the request has completed!
         os.remove("localimg0.jpg")
         os.remove("localimg1.jpg")
+
