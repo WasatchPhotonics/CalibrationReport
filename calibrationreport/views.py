@@ -48,24 +48,6 @@ class CalibrationReportViews(object):
         filename = "reports/%s/report.pdf" % serial
         return FileResponse(filename)
 
-    def old_cal_report(self):
-        """ Update the currently displayed calibration report with the
-        fields submitted from post.
-        """
-        report = EmptyReport()
-
-        if "form.submitted" in self.request.params:
-            log.info("Submitted: %s", self.request.params)
-            report = self.populate_report()
-            pdf_save = "reports/%s/report.pdf" % slugify(report.serial)
-            pdf = WasatchSinglePage(filename=pdf_save, report=report)
-            pdf.write_thumbnail()
-
-        pdf_link = "%s/report.pdf" % slugify(report.serial)
-        links = {"pdf_link":pdf_link}
-        images = {"thumbnail":"%s/report.png" % slugify(report.serial)}
-
-        return dict(fields=report, links=links, images=images)
 
     @view_config(route_name="calibration_report",
                  renderer="templates/calibration_report_form.pt")

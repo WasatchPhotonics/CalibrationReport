@@ -78,9 +78,9 @@ class WasatchSinglePage(object):
             log.warn("Not adding unavailable product images")
             return
 
+        # Scale the original images
         orig_image0_filename = report.top_image_filename
         orig_image1_filename = report.bottom_image_filename
-
 
         image0_filename = "temp_image0.png"
         image1_filename = "temp_image1.png"

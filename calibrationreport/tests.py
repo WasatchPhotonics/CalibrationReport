@@ -206,11 +206,11 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(data.coefficient_2, post_dict["coefficient_2"])
         self.assertEqual(data.coefficient_3, "")
         
-    def test_post_generates_pdf_file_on_disk(self):
+    def test_post_generates_pdf_and_png_files_on_disk(self):
         from calibrationreport.views import CalibrationReportViews
       
-        top_img_file = "resources/image0_defined.jpg" 
-        bottom_img_file = "resources/image1_defined.jpg" 
+        top_img_file = "resources/top_image_785l.jpg" 
+        bottom_img_file = "resources/bottom_image_785l.jpg" 
         top_img = DeformMockFieldStorage(top_img_file)
         bottom_img = DeformMockFieldStorage(bottom_img_file)
    
@@ -229,15 +229,11 @@ class TestCalibrationReportViews(unittest.TestCase):
 
         pdf_filename = "reports/%s/report.pdf" \
                        % slugify(post_dict["serial"])
-
         self.assertTrue(file_range(pdf_filename, 106316, ok_range=5000))
 
-
-
-
-
-
-
+        png_thumb = "reports/%s/report.png" \
+                    % slugify(post_dict["serial"])
+        self.assertTrue(file_range(png_thumb, 218022, ok_range=5000))
 
             
     def test_view_pdf(self):
@@ -246,7 +242,6 @@ class TestCalibrationReportViews(unittest.TestCase):
         known_pdf = "reports/placeholders/known_view.pdf"
         serial = "vt0001" # slug-friendly
         dest_dir = "reports/%s" % serial
-        self.clean_directory(dest_dir)
         os.makedirs(dest_dir)
         shutil.copy(known_pdf, "%s/report.pdf" % dest_dir)
 
@@ -290,132 +285,6 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.content_length, 4197)
         
-    def test_home_empty_view_not_submitted(self):
-        from calibrationreport.views import CalibrationReportViews
-        # Make sure serial number and all other fields are pre-populated
-        # with defaults
-        request = testing.DummyRequest()
-        inst = CalibrationReportViews(request)
-        result = inst.cal_report()["fields"]
-
-        self.assertEqual(result.serial, "unspecified")
-        self.assertEqual(result.coeff_0, "0")
-        self.assertEqual(result.coeff_1, "0")
-        self.assertEqual(result.coeff_2, "0")
-        self.assertEqual(result.coeff_3, "0")
-            
-        expect_file0 = "reports/placeholders/image0_placeholder.jpg"
-        self.assertEqual(result.image0, expect_file0)
-
-        expect_file1 = "reports/placeholders/image1_placeholder.jpg"
-        self.assertEqual(result.image1, expect_file1)
-
-        images = inst.cal_report()["images"]
-        self.assertEqual(images["thumbnail"], "unspecified/report.png")
-
-    def clean_directory(self, dir_name):
-        """ Helper function to ensure that the working directory is
-        deleted and then recreated.
-        """
-        if os.path.exists(dir_name):
-            shutil.rmtree(dir_name)
-       
-    def test_home_view_invalid_posts(self):
-        from calibrationreport.views import CalibrationReportViews
-        # Populate a POST entry with invalid fields, verify that the
-        # defaults are returned
-
-        # empty storage fields
-        new_dict = {"form.submitted":"True", "serial":"invtest1234",
-                    "coeff_0":"100", "coeff_1":"101", "coeff_2":"102",
-                    "coeff_3":"103",
-                    "image0_file_content":"",
-                    "image1_file_content":""}
-
-        request = testing.DummyRequest(new_dict)
-        inst = CalibrationReportViews(request)
-        result = inst.cal_report()["fields"]
-        self.assertEqual(result.serial, new_dict["serial"])
-
-        expect_img0 = "reports/%s/image0.png" % new_dict["serial"]
-        self.assertEqual(result.image0, expect_img0)
-            
- 
-    def test_home_view_submitted(self):
-        from calibrationreport.views import CalibrationReportViews
-        # Populate a POST entry, verify the returned fields are
-        # populated with the submitted entries. Don't check the pdf
-        # status, just the population of the form 
-
-        image0_store = MockStorage("image0_placeholder.jpg")
-        image1_store = MockStorage("image1_placeholder.jpg")
-        new_dict = {"form.submitted":"True", "serial":"crtest1234",
-                    "coeff_0":"100", "coeff_1":"101", "coeff_2":"102",
-                    "coeff_3":"103", 
-                    "image0_file_content":image0_store,
-                    "image1_file_content":image1_store}
-    
-        request = testing.DummyRequest(new_dict)
-        inst = CalibrationReportViews(request)
-        result = inst.cal_report()["fields"]
-
-        self.assertEqual(result.serial, new_dict["serial"])
-        self.assertEqual(result.coeff_0, new_dict["coeff_0"])
-        self.assertEqual(result.coeff_1, new_dict["coeff_1"])
-        self.assertEqual(result.coeff_2, new_dict["coeff_2"])
-        self.assertEqual(result.coeff_3, new_dict["coeff_3"])
-
-        # When submitting an entry, expect the new hardcoded filename
-        # for the uploaded imagery
-        self.assertEqual(result.image0,
-                         "reports/crtest1234/image0.png")
-        self.assertEqual(result.image1,
-                         "reports/crtest1234/image1.png")
-
-        images = inst.cal_report()["images"]
-        self.assertEqual(images["thumbnail"], 
-                         "%s/report.png" % new_dict["serial"])
-       
-    def test_home_view_submitted_generates_pdf(self):
-        # submit the post entry, verify that the pdf file is generated
-        # on disk
-        from calibrationreport.views import CalibrationReportViews
-
-        # Delete the test file if it exists
-        serial = "crtest456" # slug-friendly serial
-        pdf_directory = "reports/%s" % serial
-        self.clean_directory(pdf_directory)
-
-        # Generate a post request. These mock data storage filenames
-        # happen to be the same as what the pdf generator will use if
-        # not specified
-        image0_store = MockStorage("image0_placeholder.jpg")
-        image1_store = MockStorage("image1_placeholder.jpg")
-        new_dict = {"form.submitted":"True", "serial":serial,
-                    "coeff_0":"100", "coeff_1":"101", "coeff_2":"102",
-                    "coeff_3":"103", 
-                    "image0_file_content":image0_store,
-                    "image1_file_content":image1_store}
-    
-        request = testing.DummyRequest(new_dict)
-        inst = CalibrationReportViews(request)
-        result = inst.cal_report()
-        links = result["links"]
-
-        # Verify the file described in the links dict exists
-        linked_file = "reports/%s" % links["pdf_link"]
-        self.assertTrue(os.path.exists(linked_file))
-
-        # PDF generation is indeterminate file size, apparently because
-        # of timestamps in the file. Set a range of +- N bytes to try
-        # and compensate
-        self.assertTrue(file_range(linked_file, 186789, ok_range=5000))
-
-        # Make sure the thumbnail image exists and is within file size
-        img_file = "reports/%s" % result["images"]["thumbnail"]
-        print "actual size is: %s" % (os.path.getsize(img_file))
-        log.warn("warn size is: %s" % (os.path.getsize(img_file)))
-        self.assertTrue(file_range(img_file, 423808, ok_range=40000))
 
 
 class FunctionalTests(unittest.TestCase):
