@@ -2,6 +2,7 @@
 photonics specific calibration reports.
 """
 
+import os
 import time
 import logging
 
@@ -33,7 +34,8 @@ class WasatchSinglePage(object):
         self.width, self.height = letter
 
         self.add_serial(self.canvas, report)
-        self.add_images(self.canvas, report)
+        self.add_header_footer_images(self.canvas, report)
+        self.add_product_images(self.canvas, report)
         self.add_coefficients(self.canvas, report)
         log.info("Save: %s", self.filename)
         self.canvas.save()
@@ -50,7 +52,7 @@ class WasatchSinglePage(object):
         self.create_paragraph(time_txt, 20, 100)
 
 
-    def add_images(self, canvas, report):
+    def add_header_footer_images(self, canvas, report):
         """ Load the header, footer and side by side imagery .
         """
 
@@ -61,13 +63,24 @@ class WasatchSinglePage(object):
         img_foot = Image("resources/calibration_report_footer.png")
         img_foot.drawOn(canvas, *self.coord(0, 280, mm))
 
-
         # Resize the images with wand first so they will fit in the
         # document as expected. The output size when height scaled to
         # 125px will be close to 300x175 when viewed in the pdf.
-            
+
+    def add_product_images(self, canvas, report):
+        """ Check if the specified imagery exists, load it into the
+        canvas if it is available.
+        """
+        top_found = os.path.exists(report.top_image_filename)
+        bot_found = os.path.exists(report.bottom_image_filename)
+
+        if not top_found or not bot_found:
+            log.warn("Not adding unavailable product images")
+            return
+
         orig_image0_filename = report.top_image_filename
         orig_image1_filename = report.bottom_image_filename
+
 
         image0_filename = "temp_image0.png"
         image1_filename = "temp_image1.png"

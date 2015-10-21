@@ -55,14 +55,14 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage()
-        self.assertTrue(file_range(filename, 115760, ok_range=5000))
+        self.assertTrue(file_range(filename, 101200, ok_range=5000))
 
     def test_filename_and_report_object_specified(self):
         from calibrationreport.pdfgenerator import WasatchSinglePage
         filename = "pdf_check.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage(filename=filename)
-        self.assertTrue(file_range(filename, 115760, ok_range=5000))
+        self.assertTrue(file_range(filename, 101200, ok_range=5000))
 
     def test_fully_valid_report(self):
         from calibrationreport.models import EmptyReport
@@ -71,19 +71,19 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "with_images_check.pdf"
         self.assertFalse(touch_erase(filename))
 
-        img0 = "reports/placeholders/image0_defined.jpg"
-        img1 = "reports/placeholders/image1_defined.jpg"
+        img0 = "resources/image0_defined.jpg"
+        img1 = "resources/image1_defined.jpg"
 
         report = EmptyReport()
         report.serial = "DEFINEDSERIAL01234"
-        report.image0 = img0
-        report.image1 = img1
+        report.top_image_filename = img0
+        report.bottom_image_filename = img1
         report.coeff_0 = "1000.1213123*e-06"
         report.coeff_1 = "1001.1213123*e-06"
         report.coeff_2 = "1002.1213123*e-06"
         report.coeff_3 = "1003.1213123*e-06"
         pdf = WasatchSinglePage(filename=filename, report=report)
-        self.assertTrue(file_range(filename, 115772))
+        self.assertTrue(file_range(filename, 106311))
 
     def test_thumbnail_generation(self):
         # Create the default report
@@ -91,13 +91,13 @@ class TestPDFGenerator(unittest.TestCase):
         filename = "default.pdf"
         self.assertFalse(touch_erase(filename))
         pdf = WasatchSinglePage()
-        self.assertTrue(file_range(filename, 115772, ok_range=5000))
+        self.assertTrue(file_range(filename, 101194, ok_range=5000))
 
         # Generate the thumbnail of the first page
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.assertTrue(file_range(png_filename, 233629, ok_range=40000))
+        self.assertTrue(file_range(png_filename, 198863, ok_range=40000))
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
