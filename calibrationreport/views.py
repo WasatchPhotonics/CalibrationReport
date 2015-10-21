@@ -104,11 +104,13 @@ class CalibrationReportViews(object):
         local.coefficient_1 = captured["coefficient_1"]
         local.coefficient_2 = captured["coefficient_2"]
         local.coefficient_3 = captured["coefficient_3"]
-        local.top_image_filename = captured["top_image_upload"]["filename"]
-        local.bottom_image_filename = captured["bottom_image_upload"]["filename"]
-                    #local.filename = captured["upload"]["filename"]
-                    #local.upload = captured["upload"]
-                    #self.write_file(local)
+    
+        top_filename = captured["top_image_upload"]["filename"]
+        local.top_image_filename = top_filename
+
+        bottom_filename = captured["bottom_image_upload"]["filename"]
+        local.bottom_image_filename = bottom_filename
+
         return local
 
     def populate_report(self):

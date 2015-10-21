@@ -180,27 +180,34 @@ class TestCalibrationReportViews(unittest.TestCase):
         self.assertEqual(data.coefficient_3, post_dict["coefficient_3"])
         self.assertEqual(data.top_image_filename, top_img_file)
         self.assertEqual(data.bottom_image_filename, bottom_img_file)
-                
-    def test_post_with_image_returns_populated_data(self):
-        from stickercode.views import LabelViews
+    
 
-        fname = "resources/known_example.png"
-        img_back = MockFieldStorage(fname)
-        upload_dict = {"upload":img_back}
- 
-        test_serial = "FT1234" 
-        new_dict = {"submit":"True", "serial":test_serial,
-                    "domain":"https://waspho.com",
-                    "upload":upload_dict} 
-        request = testing.DummyRequest(new_dict)
-        inst = LabelViews(request)
-        result = inst.qr_label()
+    def test_post_serial_coefficients_rules_always_return_form(self):
+        from calibrationreport.views import CalibrationReportViews
+    
+        # The deform library handles the user feedback on field
+        # requirements. Populate a POST request with known invalid data
+        # for the various fields, make sure they match on return
+        post_dict = {"submit":"submit", 
+                     "serial":"", # blank serial disallowed
+                     "coefficient_0":"", 
+                     "coefficient_1":"", 
+                     "coefficient_2":"", 
+                     "coefficient_3":"103waytoolongforacoefficienttex",}
+
+        request = testing.DummyRequest(post_dict)
+        inst = CalibrationReportViews(request)
+        result = inst.calibration_report()
 
         data = result["data"]
-        self.assertEqual(data.serial, test_serial)
-        self.assertEqual(data.domain, "https://waspho.com")
-        self.assertEqual(data.filename, fname)
+        self.assertEqual(data.serial, post_dict["serial"])
+        self.assertEqual(data.coefficient_0, post_dict["coefficient_0"])
+        self.assertEqual(data.coefficient_1, post_dict["coefficient_1"])
+        self.assertEqual(data.coefficient_2, post_dict["coefficient_2"])
+        self.assertEqual(data.coefficient_3, "")
+    
 
+            
     def test_view_pdf(self):
         from calibrationreport.views import CalibrationReportViews
 
