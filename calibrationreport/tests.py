@@ -93,7 +93,7 @@ class TestPDFGenerator(unittest.TestCase):
         png_filename = pdf.write_thumbnail()
 
         # Verify the size is as epected
-        self.assertTrue(file_range(png_filename, 423808, ok_range=5000))
+        self.assertTrue(file_range(png_filename, 423808, ok_range=10000))
 
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
@@ -273,11 +273,11 @@ class TestCalibrationReportViews(unittest.TestCase):
         # PDF generation is indeterminate file size, apparently because
         # of timestamps in the file. Set a range of +- N bytes to try
         # and compensate
-        self.assertTrue(file_range(linked_file, 186789))
+        self.assertTrue(file_range(linked_file, 186789, ok_range=5000))
 
         # Make sure the thumbnail image exists and is within file size
         img_file = "reports/%s" % result["images"]["thumbnail"]
-        self.assertTrue(file_range(img_file, 423808, ok_range=5000))
+        self.assertTrue(file_range(img_file, 423808, ok_range=10000))
 
 
 class FunctionalTests(unittest.TestCase):
