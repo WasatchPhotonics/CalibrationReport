@@ -76,12 +76,12 @@ class TestPDFGenerator(unittest.TestCase):
 
         report = EmptyReport()
         report.serial = "DEFINEDSERIAL01234"
-        report.top_image_filename = img0
-        report.bottom_image_filename = img1
         report.coeff_0 = "1000.1213123*e-06"
         report.coeff_1 = "1001.1213123*e-06"
         report.coeff_2 = "1002.1213123*e-06"
         report.coeff_3 = "1003.1213123*e-06"
+        report.top_image_filename = img0
+        report.bottom_image_filename = img1
         pdf = WasatchSinglePage(filename=filename, report=report)
         self.assertTrue(file_range(filename, 106311))
 

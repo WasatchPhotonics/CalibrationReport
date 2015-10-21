@@ -70,7 +70,7 @@ class CalibrationReportViews(object):
         local = EmptyReport()
 
         if "submit" in self.request.POST:
-            log.info("submit: %s", self.request.POST)
+            #log.info("submit: %s", self.request.POST)
             try:
                 # Deserialize into hash on validation - capture is the
                 # "appstruct" in deform nomenclature
@@ -83,8 +83,6 @@ class CalibrationReportViews(object):
                            % slugify(local.serial)
                 pdf = WasatchSinglePage(filename=pdf_save, report=local)
                 pdf.write_thumbnail()
-
-                
 
                 # Re-render the form with the fields already populated 
                 return dict(data=local, form=form.render(captured))
