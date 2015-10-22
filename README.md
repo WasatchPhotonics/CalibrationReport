@@ -5,7 +5,7 @@ Web service to create calibration reports for wasatch photonics
 spectrometers.
 
 
-![CalibrationReport screenshot](/resources/web_application_screenshot.png "Calibration Report screenshot")
+![CalibrationReport screenshot](/resources/demo.gif "Calibration Report screenshot")
 
 Getting Started
 ---------------
