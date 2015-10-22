@@ -63,9 +63,6 @@ class WasatchSinglePage(object):
         img_foot = Image("resources/calibration_report_footer.png")
         img_foot.drawOn(canvas, *self.coord(0, 280, mm))
 
-        # Resize the images with wand first so they will fit in the
-        # document as expected. The output size when height scaled to
-        # 125px will be close to 300x175 when viewed in the pdf.
 
     def add_product_images(self, canvas, report):
         """ Check if the specified imagery exists, load it into the
@@ -79,7 +76,9 @@ class WasatchSinglePage(object):
             log.warn("Not adding unavailable product images")
             return
 
-        # Scale the original images
+        # Resize the images with wand first so they will fit in the
+        # document as expected. The output size when height scaled to
+        # 125px will be close to 300x175 when viewed in the pdf.
         orig_image0_filename = report.top_image_filename
         orig_image1_filename = report.bottom_image_filename
 
