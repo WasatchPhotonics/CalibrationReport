@@ -12,7 +12,8 @@ from pyramid import testing
 
 from webtest import TestApp, Upload
 
-from coverageutils import file_range, touch_erase, size_range
+from calibrationreport.coverageutils import file_range, touch_erase
+from calibrationreport.coverageutils import size_range
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -153,7 +154,7 @@ class TestCalibrationReportViews(unittest.TestCase):
             result = self.post_calibration_report(post_dict)
             self.assertIsNone(result.get("appstruct"))
 
-            del(post_dict["coefficient_%s" % item])
+            del post_dict["coefficient_%s" % item]
             result = self.post_calibration_report(post_dict)
             self.assertIsNone(result.get("appstruct"))
 

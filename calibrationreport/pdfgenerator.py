@@ -6,7 +6,7 @@ import os
 import time
 import logging
 
-from reportlab.lib.units import mm, inch
+from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import Image, Paragraph
@@ -33,14 +33,14 @@ class WasatchSinglePage(object):
         self.styles = getSampleStyleSheet()
         self.width, self.height = letter
 
-        self.add_serial(self.canvas, report)
-        self.add_header_footer_images(self.canvas, report)
-        self.add_product_images(self.canvas, report)
-        self.add_coefficients(self.canvas, report)
+        self.add_serial(report)
+        self.add_header_footer_images()
+        self.add_product_images(report)
+        self.add_coefficients(report)
         log.info("Save: %s", self.filename)
         self.canvas.save()
 
-    def add_serial(self, canvas, report):
+    def add_serial(self, report):
         """ Add the large serial number text and the calibration
         timestamp.
         """
@@ -52,19 +52,19 @@ class WasatchSinglePage(object):
         self.create_paragraph(time_txt, 20, 100)
 
 
-    def add_header_footer_images(self, canvas, report):
+    def add_header_footer_images(self):
         """ Load the header, footer and side by side imagery .
         """
 
         # Add the header images
         img_head = Image("resources/calibration_report_header.png")
-        img_head.drawOn(canvas, *self.coord(0, 48, mm))
+        img_head.drawOn(self.canvas, *self.coord(0, 48, mm))
 
         img_foot = Image("resources/calibration_report_footer.png")
-        img_foot.drawOn(canvas, *self.coord(0, 280, mm))
+        img_foot.drawOn(self.canvas, *self.coord(0, 280, mm))
 
 
-    def add_product_images(self, canvas, report):
+    def add_product_images(self, report):
         """ Check if the specified imagery exists, load it into the
         canvas if it is available.
         """
@@ -96,33 +96,33 @@ class WasatchSinglePage(object):
         img_zero = Image(image0_filename)
         img_one = Image(image1_filename)
 
-        img_zero.drawOn(canvas, *self.coord(135, 100, mm))
-        img_one.drawOn(canvas, *self.coord(135, 150, mm))
+        img_zero.drawOn(self.canvas, *self.coord(135, 100, mm))
+        img_one.drawOn(self.canvas, *self.coord(135, 150, mm))
         
-    def coord(self, x, y, unit=1):
+    def coord(self, input_x, input_y, unit=1):
         """ Helper class to help position flowables in Canvas objects
         From: http://www.blog.pythonlibrary.org/2012/06/27/\
         reportlab-mixing-fixed-content-and-flowables/
         """
-        x, y = x * unit, self.height -  y * unit
-        return x, y    
+        out_x, out_y = input_x * unit, self.height -  input_y * unit
+        return out_x, out_y    
  
-    def create_paragraph(self, ptext, x, y, style=None):
+    def create_paragraph(self, ptext, input_x, input_y, style=None):
         """ From: http://www.blog.pythonlibrary.org/2012/06/27/\
         reportlab-mixing-fixed-content-and-flowables/
         """
         if not style:
             style = self.styles["Normal"]
-        p = Paragraph(ptext, style=style)
-        p.wrapOn(self.canvas, self.width, self.height)
-        p.drawOn(self.canvas, *self.coord(x, y, mm))
+        para = Paragraph(ptext, style=style)
+        para.wrapOn(self.canvas, self.width, self.height)
+        para.drawOn(self.canvas, *self.coord(input_x, input_y, mm))
 
-    def add_coefficients(self, canvas, report):
+    def add_coefficients(self, report):
         """ Add the calibration equation image, as well as the
         calibration coefficients defined in the report object.
         """
         img_equ = Image("resources/calibration_text_and_equation.png")
-        img_equ.drawOn(canvas, *self.coord(40, 180, mm)) 
+        img_equ.drawOn(self.canvas, *self.coord(40, 180, mm)) 
 
         pfx_txt = "Where 'p' is pixel index, and:"
         self.create_paragraph(pfx_txt, 60, 190)
