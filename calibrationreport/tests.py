@@ -163,8 +163,10 @@ class TestCalibrationReportViews(unittest.TestCase):
                      "coefficient_2":"102", "coefficient_3":"103"}
         result = self.post_calibration_report(post_dict)
 
-        self.assertTrue(file_range("reports/ut5555/report.pdf", 106473))
-        self.assertTrue(file_range("reports/ut5555/report.png", 220137))
+        self.assertTrue(file_range("reports/ut5555/report.pdf", 106473,
+                                   ok_range=15000))
+        self.assertTrue(file_range("reports/ut5555/report.png", 220137,
+                                   ok_range=15000))
        
       
     def test_completed_form_report_created_is_accessible(self):
@@ -191,7 +193,8 @@ class TestCalibrationReportViews(unittest.TestCase):
         request.matchdict["serial"] = "ut5555"
         inst = CalibrationReportViews(request)
         result = inst.view_thumbnail() 
-        self.assertTrue(size_range(result.content_length, 220137))
+        self.assertTrue(size_range(result.content_length, 220137,
+                                   ok_range=15000))
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
@@ -324,8 +327,8 @@ class FunctionalTests(unittest.TestCase):
 
         res = self.testapp.get("/view_pdf/ft789")
         pdf_size = res.content_length
-        self.assertTrue(size_range(pdf_size, 106456, ok_range=5000))
+        self.assertTrue(size_range(pdf_size, 106456, ok_range=15000))
 
         res = self.testapp.get("/view_thumbnail/ft789")
         png_size = res.content_length
-        self.assertTrue(size_range(png_size, 217477, ok_range=5000))
+        self.assertTrue(size_range(png_size, 217477, ok_range=15000))
