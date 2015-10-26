@@ -7,6 +7,7 @@ class EmptyReport(object):
     """ Helper class for empty calibration report population.
     """
     serial = ""
+    filename = ""
     coefficient_0 = ""
     coefficient_1 = ""
     coefficient_2 = ""
@@ -61,44 +62,3 @@ class ReportSchema(colander.Schema):
     bottom_image_upload = csn(FileData(), 
                               missing=colander.null,
                               widget=fuw)
-
-
-class VerboseReportSchema(colander.Schema):
-    """ use colander to define a data validation schema for linkage with
-    a deform object.
-    """
-    csn = colander.SchemaNode
-
-    serial = csn(colander.String(),
-                 validator=colander.Length(3, 10),
-                 description="Max 10 character serial")
-
-    coefficient_0 = csn(colander.String(),
-                        description="Calibration Coefficient C0")
-
-    coefficient_1 = csn(colander.String(),
-                        description="Calibration Coefficient C1")
-
-    coefficient_2 = csn(colander.String(),
-                        description="Calibration Coefficient C2")
-
-    coefficient_3 = csn(colander.String(),
-                        description="Calibration Coefficient C3")
-
-    # Based on: # http://stackoverflow.com/questions/6563546/\
-    # how-to-make-file-upload-facultative-with-deform-and-colander
-    # Various demos delete this temporary file on succesful submission
-    top_tmp_store = MemoryTmpStore()
-    fuw = widget.FileUploadWidget(top_tmp_store)
-    top_image_upload = csn(FileData(), 
-                           missing=colander.null,
-                           widget=fuw,
-                           description="Top product image")
-
-    bottom_tmp_store = MemoryTmpStore()
-    fuw = widget.FileUploadWidget(bottom_tmp_store)
-    bottom_image_upload = csn(FileData(), 
-                              missing=colander.null,
-                              widget=fuw,
-                              description="Bottom product image")
-

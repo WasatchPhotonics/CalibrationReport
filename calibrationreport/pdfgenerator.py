@@ -100,9 +100,7 @@ class WasatchSinglePage(object):
         img_one.drawOn(canvas, *self.coord(135, 150, mm))
         
     def coord(self, x, y, unit=1):
-        """
-        # http://stackoverflow.com/questions/4726011/wrap-text-in-a-table-reportlab
-        Helper class to help position flowables in Canvas objects
+        """ Helper class to help position flowables in Canvas objects
         From: http://www.blog.pythonlibrary.org/2012/06/27/\
         reportlab-mixing-fixed-content-and-flowables/
         """
@@ -123,7 +121,6 @@ class WasatchSinglePage(object):
         """ Add the calibration equation image, as well as the
         calibration coefficients defined in the report object.
         """
-
         img_equ = Image("resources/calibration_text_and_equation.png")
         img_equ.drawOn(canvas, *self.coord(40, 180, mm)) 
 

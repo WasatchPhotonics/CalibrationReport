@@ -16,5 +16,7 @@ Getting Started
 
 - $VENV/bin/python setup.py develop
 
+- $VENV/bin/nosetests --cover-erase --with-coverage --cover-package=stickercode
+
 - $VENV/bin/pserve config/development.ini
 

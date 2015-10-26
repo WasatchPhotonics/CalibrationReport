@@ -32,22 +32,8 @@ class CalibrationReportViews(object):
         first page calibration report png thumbnail, return it.
         """
         serial = slugify(self.request.matchdict["serial"])
-        log.info("Show thumbnail %s", serial)
         filename = "reports/%s/report.png" % serial
-        if not os.path.exists(filename):
-            log.warn("Can't find thumbnail: %s", filename)
-            filename = "resources/thumbnail_start.png"
-
         return FileResponse(filename)
-
-    @view_config(route_name="blank_thumbnail")
-    def blank_thumbnail(self):
-        """ Match a route without the serial in matchdict, return the
-        placeholder image.
-        """
-        log.info("Return blank thumbnail")
-        return FileResponse("resources/S_00101_report.png")
-    
 
     @view_config(route_name="view_pdf")
     def view_pdf(self):
@@ -58,69 +44,55 @@ class CalibrationReportViews(object):
         filename = "reports/%s/report.pdf" % serial
         return FileResponse(filename)
 
-
     @view_config(route_name="calibration_report",
                  renderer="templates/calibration_report_form.pt")
     def calibration_report(self):
         """ Process form paramters, create a pdf calibration report form
         and generate a thumbnail view.
         """
-        schema = ReportSchema()
-        form = Form(schema, buttons=("submit",))
-        local = EmptyReport()
+        form = Form(ReportSchema(), buttons=("submit",))
 
         if "submit" in self.request.POST:
             #log.info("submit: %s", self.request.POST)
+            controls = self.request.POST.items()
             try:
-                # Deserialize into hash on validation - capture is the
-                # "appstruct" in deform nomenclature
-                controls = self.request.POST.items()
-                captured = form.validate(controls)
+                appstruct = form.validate(controls)
+                rendered_form = form.render(appstruct)
 
-                self.populate_data(local, captured)
-                self.write_files(captured)
-
-                local.slugged = slugify(captured["serial"])
-                local.top_image_filename = "reports/%s/top_image.png" \
-                                           % local.slugged
-                local.bottom_image_filename = "reports/%s/bottom_image.png" \
-                                           % local.slugged
-
-                pdf_save = "reports/%s/report.pdf" \
-                           % slugify(local.serial)
-                pdf = WasatchSinglePage(filename=pdf_save, report=local)
+                report = self.populate_data(appstruct)
+                self.makedir_write_files(appstruct)
+                pdf = WasatchSinglePage(filename=report.filename,
+                                        report=report)
                 pdf.write_thumbnail()
 
-                # Re-render the form with the fields already populated 
-                return dict(data=local, form=form.render(captured))
-                
-            except ValidationFailure as exc:
+                return {"form":rendered_form, "appstruct":appstruct}
+
+            except ValidationFailure as exc: 
                 #log.exception(exc)
-                log.critical("Validation failure, return default form")
-                return dict(data=local, form=exc.render())
+                log.info("Validation failure")
+                return {'form':exc.render()} 
 
-        return dict(data=local, form=form.render())
+        return {"form":form.render()}
 
-
-    def write_files(self, captured):
+    def makedir_write_files(self, appstruct):
         """ With parameters in the post request, create a destination
         directory in reports/ then write each of the post requests files
         to disk.
         """
  
         # Create the directory if it does not exist
-        final_dir = "reports/%s" % slugify(captured["serial"])
+        final_dir = "reports/%s" % slugify(appstruct["serial"])
         if not os.path.exists(final_dir):
             log.info("Make directory: %s", final_dir)
             os.makedirs(final_dir)
 
-        if captured["top_image_upload"] != colander.null:
-            upload = captured["top_image_upload"]
+        if appstruct["top_image_upload"] != colander.null:
+            upload = appstruct["top_image_upload"]
             final_file = "%s/top_image.png" % final_dir
             self.single_file_write(upload["fp"], final_file)
 
-        if captured["bottom_image_upload"] != colander.null:
-            upload = captured["bottom_image_upload"]
+        if appstruct["bottom_image_upload"] != colander.null:
+            upload = appstruct["bottom_image_upload"]
             final_file = "%s/bottom_image.png" % final_dir
             self.single_file_write(upload["fp"], final_file)
 
@@ -137,27 +109,31 @@ class CalibrationReportViews(object):
         os.rename(temp_file, filename)
         log.info("Saved file: %s", filename) 
 
-    def populate_data(self, local, captured):
+    def populate_data(self, appstruct):
         """ Convenience function to fill the data has with the values
         from the POST'ed form.
         """ 
-        local.serial = captured["serial"]
-        local.coefficient_0 = captured["coefficient_0"]
-        local.coefficient_1 = captured["coefficient_1"]
-        local.coefficient_2 = captured["coefficient_2"]
-        local.coefficient_3 = captured["coefficient_3"]
-  
+        local = EmptyReport()
+        local.serial = appstruct["serial"]
+        local.slugged = slugify(appstruct["serial"])
+        local.filename = "reports/%s/report.pdf" % local.slugged
+        local.coefficient_0 = appstruct["coefficient_0"]
+        local.coefficient_1 = appstruct["coefficient_1"]
+        local.coefficient_2 = appstruct["coefficient_2"]
+        local.coefficient_3 = appstruct["coefficient_3"]
+
         # Images are optional, set to placeholder if not specified
-        if captured["top_image_upload"] == colander.null:
+        if appstruct["top_image_upload"] == colander.null:
             local.top_image_filename = "resources/image0_defined.jpg"
         else:
-            top_filename = captured["top_image_upload"]["filename"]
-            local.top_image_filename = top_filename
+            local.top_image_filename = "reports/%s/top_image.png" \
+                                       % local.slugged
 
-        if captured["bottom_image_upload"] == colander.null:
+        if appstruct["bottom_image_upload"] == colander.null:
             local.bottom_image_filename = "resources/image1_defined.jpg"
         else:
-            bottom_filename = captured["bottom_image_upload"]["filename"]
-            local.bottom_image_filename = bottom_filename
+            local.bottom_image_filename = "reports/%s/bottom_image.png" \
+                                          % local.slugged
+  
 
         return local

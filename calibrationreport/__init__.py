@@ -12,7 +12,6 @@ def main(global_config, **settings):
     config.add_static_view("assets", "assets", cache_max_age=3600)
     config.add_route("calibration_report", "/")
     config.add_route("view_pdf", "/view_pdf/{serial}")
-    config.add_route("blank_thumbnail", "/view_thumbnail/")
     config.add_route("view_thumbnail", "/view_thumbnail/{serial}")
     config.scan()
     return config.make_wsgi_app()
