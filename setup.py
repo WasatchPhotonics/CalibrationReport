@@ -19,7 +19,6 @@ requires = [
     "pyramid_tm",
     "waitress",
     "WebTest",
-    "requests",
     "python-slugify",
     "wand",
     "reportlab",
