@@ -24,8 +24,10 @@ class WasatchSinglePage(object):
     """
     def __init__(self, filename="default.pdf", report=None,
                  return_blob=False):
-        self.filename = filename
         self.dir_name = os.path.dirname(__file__)
+        self.filename = filename
+        if return_blob == True:
+            self.filename = "%s/../resources/temp.pdf" % self.dir_name
 
         # Populate the report object with defaults if not specified
         if report is None:
@@ -51,6 +53,22 @@ class WasatchSinglePage(object):
         self.canvas.save()
         temp_file = open(self.filename)
         return temp_file.read()
+
+    def return_thumbnail_blob(self):
+        """ Write the canvas to pdf format as a temporary file. Read it
+        back and png-ify the top page, return the blob.
+        """
+        self.canvas.save()
+
+        png_filename = self.filename.replace(".pdf", ".png")
+        first_page_file = "%s[0]" % self.filename
+        with WandImage(filename=first_page_file) as img:
+            img.resize(496, 701) # A4 ratio 2480x2408
+            img.save(filename=png_filename)
+
+        temp_file = open(png_filename)
+        return temp_file.read()
+
 
     def add_serial(self, report):
         """ Add the large serial number text and the calibration
