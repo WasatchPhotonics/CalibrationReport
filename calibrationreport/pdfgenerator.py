@@ -22,8 +22,10 @@ class WasatchSinglePage(object):
     """ Generate a wasatch photoncis themed calibration report by
     default. All parameters are optional.
     """
-    def __init__(self, filename="default.pdf", report=None):
+    def __init__(self, filename="default.pdf", report=None,
+                 return_blob=False):
         self.filename = filename
+        self.dir_name = os.path.dirname(__file__)
 
         # Populate the report object with defaults if not specified
         if report is None:
@@ -37,8 +39,18 @@ class WasatchSinglePage(object):
         self.add_header_footer_images()
         self.add_product_images(report)
         self.add_coefficients(report)
-        log.info("Save: %s", self.filename)
+        if not return_blob:
+            log.info("Save: %s", self.filename)
+            self.canvas.save()
+    
+    def return_blob(self):
+        """ API compatibility to return generated blob data from qr
+        label temporarily writing to disk. If you have a solution with
+        tobytes, bytesio and encoder_name, please let me know.
+        """
         self.canvas.save()
+        temp_file = open(self.filename)
+        return temp_file.read()
 
     def add_serial(self, report):
         """ Add the large serial number text and the calibration
@@ -57,10 +69,14 @@ class WasatchSinglePage(object):
         """
 
         # Add the header images
-        img_head = Image("resources/calibration_report_header.png")
+        img_name = "%s/../resources/calibration_report_header.png" \
+                   % self.dir_name
+        img_head = Image(img_name)
         img_head.drawOn(self.canvas, *self.coord(0, 48, mm))
 
-        img_foot = Image("resources/calibration_report_footer.png")
+        img_name = "%s/../resources/calibration_report_footer.png" \
+                   % self.dir_name
+        img_foot = Image(img_name)
         img_foot.drawOn(self.canvas, *self.coord(0, 280, mm))
 
 
@@ -121,7 +137,9 @@ class WasatchSinglePage(object):
         """ Add the calibration equation image, as well as the
         calibration coefficients defined in the report object.
         """
-        img_equ = Image("resources/calibration_text_and_equation.png")
+        img_name = "%s/../resources/calibration_text_and_equation.png" \
+                   % self.dir_name
+        img_equ = Image(img_name)
         img_equ.drawOn(self.canvas, *self.coord(40, 180, mm)) 
 
         pfx_txt = "Where 'p' is pixel index, and:"

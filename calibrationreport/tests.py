@@ -100,6 +100,12 @@ class TestPDFGenerator(unittest.TestCase):
         # Verify the size is as epected
         self.assertTrue(file_range(png_filename, 198863, ok_range=40000))
 
+    def test_can_return_blob_main_pdf(self):
+        from calibrationreport.pdfgenerator import WasatchSinglePage
+        pdf = WasatchSinglePage(return_blob=True)
+        blob_data = pdf.return_blob()
+        self.assertTrue(size_range(len(blob_data), 101194, ok_range=5000))
+        
 class TestCalibrationReportViews(unittest.TestCase):
     def setUp(self):
         self.clean_test_files()
