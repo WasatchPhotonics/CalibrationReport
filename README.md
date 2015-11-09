@@ -11,6 +11,12 @@ document and graphical thumbnail, store forever.
 
 Getting Started
 ---------------
+    Create a python virtual environment
+    sudo dnf install freetype-devel
+    sudo dnf install gcc
+    sudo dnf install libjpeg-devel
+    sudo dnf install zlib-devel
+    sudo dnf install ImageMagick-devel
 
 - cd _directory containing this file_
 
