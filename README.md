@@ -9,8 +9,14 @@ document and graphical thumbnail, store forever.
 
 ![CalibrationReport screenshot](/resources/demo.gif "Calibration Report screenshot")
 
-Getting Started
----------------
+
+Prerequisites
+-------------
+
+    Requires the [StickerCode](https://github.com/WasatchPhotonics/StickerCode) library.
+
+VirtualEnv Installation
+-----------------------
     Create a python virtual environment
     sudo dnf install freetype-devel
     sudo dnf install gcc
@@ -18,11 +24,20 @@ Getting Started
     sudo dnf install zlib-devel
     sudo dnf install ImageMagick-devel
 
+
+Conda Installation and tests
+----------------------------
+    conda create -n cookbook pyramid
+    source activate cookbook
+    conda install pillow pytest-cov
+
+
+Setup and Tests
+---------------
 - cd _directory containing this file_
 
 - $VENV/bin/python setup.py develop
 
-- $VENV/bin/nosetests --cover-erase --with-coverage --cover-package=stickercode
+- $VENV/bin/nosetests --cover-erase --with-coverage --cover-package=calibrationreport
 
 - $VENV/bin/pserve config/development.ini
-
