@@ -13,7 +13,7 @@ document and graphical thumbnail, store forever.
 Prerequisites
 -------------
 
-    Requires the ![StickerCode](https://github.com/WasatchPhotonics/StickerCode) library.
+    Requires the [StickerCode](https://github.com/WasatchPhotonics/StickerCode) library.
 
 VirtualEnv Installation
 -----------------------
